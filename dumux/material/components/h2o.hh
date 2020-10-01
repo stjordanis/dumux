@@ -734,6 +734,7 @@ public:
      * See:
      * "Reid, R.C., Prausnitz, J.M., Poling, B.E.: The Properties of
      * Gases and Liquids (1987)"
+     * Lucas corresponding states method
      * https://www.osti.gov/scitech/biblio/6504847} \cite{reid1987}
      */
     static Scalar pureGasViscosity(Scalar temperature, Scalar pressure)
