@@ -732,7 +732,9 @@ public:
      *
      *
      * See:
-     * MUFTE
+     * "Reid, R.C., Prausnitz, J.M., Poling, B.E.: The Properties of
+     * Gases and Liquids (1987)"
+     * https://www.osti.gov/scitech/biblio/6504847} \cite{reid1987}
      */
     static Scalar pureGasViscosity(Scalar temperature, Scalar pressure)
     {
