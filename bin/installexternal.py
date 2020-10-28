@@ -4,19 +4,12 @@
 install external stuff for dumux
 """
 import os
-#import git
-#import wget
 import urllib.request
 import tarfile
 import sys
 import subprocess
 import shutil
-from distutils.spawn import find_executable
-from pkg_resources import parse_version
-import argparse
 
-
-#print ("The script has the name" + Scriptname)
 def checkLocationForDuneModules():
     if not os.path.isdir("dune-common"):
         print("You have to call " + sys.argv[0] + " for " + sys.argv[1] + " from")
@@ -40,7 +33,6 @@ def installAluGrid():
     print (CORRECT_LOCATION_FOR_DUNE_MODULES)
     if not checkLocationForDuneModules():
         return
-
 
     if not os.path.exists("dune-alugrid"):
         print("alugrid is cloned")
@@ -77,14 +69,12 @@ def installFoamGrid():
     if  DOWNLOAD_ONLY:
         return
 
-    if  (CLEANUP and os.path.exists("dune-alugrid")):
-        shutil.rmtree('dune-alugrid')
-        print("alugrid is removed")
+    if  (CLEANUP and os.path.exists("dune-foamgrid")):
+        shutil.rmtree('dune-foamgrid')
+        print("foamgrid is removed")
 
-# needs to be checked if this works
 def installGLPK():
     os.chdir(EXTDIR)
-    #rm -rf glpk* standalone
 
     if not os.path.exists("glpk-4.60.tar.gz"):
         filedata = urllib.request.urlopen('http://ftp.gnu.org/gnu/glpk/glpk-4.60.tar.gz')
@@ -100,10 +90,11 @@ def installGLPK():
         shutil.rmtree('glpk')
         print("glpk is removed")
         return
-    os.mkdir( "glpk" );
-    tf = tarfile.open("glpk-4.60.tar.gz")
-    tf.extractall(EXTDIR)
-    os.rename("glpk-4.60", "glpk")
+    if not os.path.exists("glpk"):
+        os.mkdir( "glpk" );
+        tf = tarfile.open("glpk-4.60.tar.gz")
+        tf.extractall(EXTDIR)
+        os.rename("glpk-4.60", "glpk")
 
     os.chdir(EXTDIR + "/glpk")
 
@@ -117,8 +108,6 @@ def installGLPK():
     print( "  -DGLPK_ROOT=/path/to/glpk \\")
 
     os.chdir(TOPDIR)
-
-
 
 def installGStat():
     os.chdir(EXTDIR)
@@ -135,7 +124,6 @@ def installGStat():
     if  DOWNLOAD_ONLY:
         return
 
-    #os.mkdir( "gstat" );
     tf = tarfile.open("gstat.tar.gz")
 
     tf.extractall()
@@ -153,8 +141,6 @@ def installGStat():
     if os.path.exists("gstat"):
         print("Successfully isntalled gstat")
 
-
-
 def installLecture():
     os.chdir(TOPDIR)
     if not checkLocationForDuneModules():
@@ -166,7 +152,6 @@ def installLecture():
         os.chdir(TOPDIR + "/dumux-lecture")
         subprocess.Popen(["git", "checkout", "releases/" + DUMUX_VERSION])
         print ("Skip cloning dumux-lecture because the folder already exists.")
-
 
 def installMETIS():
     os.chdir(EXTDIR)
@@ -189,7 +174,6 @@ def installMETIS():
 
     tf = tarfile.open("metis-5.1.0.tar.gz")
     tf.extractall(EXTDIR)
-    #os.rename("gstat", "gstat")
 
     os.chdir(EXTDIR + "/metis-5.1.0")
 
@@ -197,40 +181,8 @@ def installMETIS():
     subprocess.call("make")
     os.chdir(EXTDIR)
 
-def installMultidomain():
-    os.chdir(TOPDIR)
-    if not checkLocationForDuneModules():
-        return
-    if not os.path.exists("dune-multidomain"):
-        print("dune-multidomain is cloned")
-        git("clone", "git://github.com/smuething/dune-multidomain.git", "-b", "releases/2.0")
-
-    if  DOWNLOAD_ONLY:
-        return
-
-    if  (CLEANUP and os.path.exists("dune-multidomain")):
-        shutil.rmtree('dune-multidomain')
-        print("dune-multidomain is removed")
-
-def installMultidomainGrid():
-    os.chdir(TOPDIR)
-    if not checkLocationForDuneModules():
-        return
-    if not os.path.exists("dune-multidomaingrid"):
-        print("dune-multidomaingrid is cloned")
-        git("clone", "git://github.com/smuething/dune-multidomaingrid.git", "-b", "releases/2.3")
-
-    if  DOWNLOAD_ONLY:
-        return
-
-    if  (CLEANUP and os.path.exists("dune-multidomaingrid")):
-        shutil.rmtree('dune-multidomaingrid')
-        print("dune-multidomaingrid is removed")
-
-#installNLOPT
 def installNLOPT():
     os.chdir(EXTDIR)
-    # rm -rf nlopt* standalone
 
     if not os.path.exists("nlopt-2.4.2.tar.gz"):
         filedata = urllib.request.urlopen('http://ab-initio.mit.edu/nlopt/nlopt-2.4.2.tar.gz')
@@ -246,10 +198,11 @@ def installNLOPT():
         print("nlopt is removed")
         return
 
-    os.mkdir( "nlopt" );
-    tf = tarfile.open("nlopt-2.4.2.tar.gz")
-    tf.extractall(EXTDIR)
-    os.rename("nlopt-2.4.2", "nlopt")
+    if not os.path.exists("nlopt"):
+        os.mkdir( "nlopt" );
+        tf = tarfile.open("nlopt-2.4.2.tar.gz")
+        tf.extractall(EXTDIR)
+        os.rename("nlopt-2.4.2", "nlopt")
 
     os.chdir(EXTDIR + "/nlopt")
 
@@ -292,104 +245,186 @@ def installOPM():
     print("  BLAS, LAPACK, Boost, SuiteSparse, Zoltan")
     os.chdir(TOPDIR)
 
-
-def installPDELab():
-    os.chdir(TOPDIR)
-    if not checkLocationForDuneModules():
-        return
-    if not os.path.exists("dune-pdelab"):
-        print("dune-pdelab is cloned")
-        git("clone", "https://gitlab.dune-project.org/pdelab/dune-pdelab.git", "-b", "releases/2.0")
-
-    if  DOWNLOAD_ONLY:
-        return
-
-    if  (CLEANUP and os.path.exists("dune-pdelab")):
-        shutil.rmtree('dune-pdelab')
-        print("dune-pdelab is removed")
-
-def installTypeTree():
-    os.chdir(TOPDIR)
-    if not checkLocationForDuneModules():
-        return
-    if not os.path.exists("dune-typetree"):
-        print("dune-typetree is cloned")
-        git("clone", "https://gitlab.dune-project.org/staging/dune-typetree.git", "-b", "releases/2.3")
-
-    if  DOWNLOAD_ONLY:
-        return
-
-    if  (CLEANUP and os.path.exists("dune-typetree")):
-        shutil.rmtree('dune-typetree')
-        print("dune-typetree is removed")
-
-#This must still be checked
 def installUG():
-    os.chdir(TOPDIR)
-    UG_VERSION="3.12.1"
-    print("test UG")
-    if not os.path.exists("ug-" + UG_VERSION):
-        print("dune-uggrid is cloned")
-        git("clone", "https://gitlab.dune-project.org/staging/dune-uggrid.git", "-b", "v" + UG_VERSION)
-
-    if  DOWNLOAD_ONLY:
+    if not checkLocationForDuneModules():
         return
 
-    if  (CLEANUP and os.path.exists("ug-" + UG_VERSION)):
+    os.makedirs(EXTDIR, exist_ok=True)
+    os.chdir(EXTDIR)
+    UG_VERSION="3.12.1"
+
+    if not os.path.exists("ug-" + UG_VERSION):
+        print("ug-{} is cloned".format(UG_VERSION))
+        git("clone", "-b", "v" + UG_VERSION, "https://gitlab.dune-project.org/staging/dune-uggrid.git", "ug-"+UG_VERSION)
+
+    if DOWNLOAD_ONLY:
+        return
+
+    if CLEANUP and os.path.exists("ug-" + UG_VERSION):
         shutil.rmtree("ug-" + UG_VERSION)
         print("dune-typetree is removed")
         return
-    # Apply patch for the parallel use of UG
-    # toDo ...
 
+def installSubGrid():
+    os.chdir(TOPDIR)
+    if not checkLocationForDuneModules():
+        return
+    if not os.path.exists("dune-subgrid"):
+        print("subgrid is cloned")
+        git("clone", "https://git.imp.fu-berlin.de/agnumpde/dune-subgrid.git", "-b", "releases/" + DUNE_VERSION)
+
+    if  DOWNLOAD_ONLY:
+        return
+
+    if  (CLEANUP and os.path.exists("dune-subgrid")):
+        shutil.rmtree('dune-subgrid')
+        print("subgrid is removed")
+
+
+def installSpGrid():
+    os.chdir(TOPDIR)
+    if not checkLocationForDuneModules():
+        return
+    if not os.path.exists("dune-spgrid"):
+        print("subgrid is cloned")
+        git("clone", "https://gitlab.dune-project.org/extensions/dune-spgrid.git", "-b", "releases/" + DUNE_VERSION)
+
+    if  DOWNLOAD_ONLY:
+        return
+
+    if  (CLEANUP and os.path.exists("dune-spgrid")):
+        shutil.rmtree('dune-spgrid')
+        print("spgrid is removed")
+
+
+def installMmesh():
+    os.chdir(TOPDIR)
+    if not checkLocationForDuneModules():
+        return
+    if not os.path.exists("dune-mmesh"):
+        print("mmesh is cloned")
+        git("clone", "https://gitlab.dune-project.org/samuel.burbulla/dune-mmesh.git", "-b", "release/1.1")
+
+    if  DOWNLOAD_ONLY:
+        return
+
+    if  (CLEANUP and os.path.exists("dune-mmesh")):
+        shutil.rmtree('dune-mmesh')
+        print("mmesh is removed")
+
+def installFunctions():
+    os.chdir(TOPDIR)
+    if not checkLocationForDuneModules():
+        return
+    if not os.path.exists("dune-functions"):
+        print("functions is cloned")
+        git("clone", "https://gitlab.dune-project.org/staging/dune-functions.git", "-b", "releases/" + DUNE_VERSION)
+
+    if  DOWNLOAD_ONLY:
+        return
+
+    if  (CLEANUP and os.path.exists("dune-functions")):
+        shutil.rmtree('dune-functions')
+        print("dune-functions is removed")
 
 def git(*args):
     return subprocess.check_call(['git'] + list(args))
 
 def usage():
+    print( "")
     print( "Usage: ./installexternal.py [OPTIONS] PACKAGES")
     print( "")
     print( "Where PACKAGES is one or more of the following")
-    print( "  all              Install everything and the kitchen sink.")
-    print( "  alugrid          Download dune-alugrid.")
-    print( "  course           Download the dumux-course.")
-    print( "  foamgrid         Download dune-foamgrid.")
+    print( "Multiple packages can be downloaded as a group:")
+    print( "  all               Install everything and the kitchen sink.")
+    print( "  dumux-extensions  Download dumux-course and dumux-lecture.")
+    print( "  dune-extensions   Download dune-uggrid, dune-alugrid, dune-foamgrid,")
+    print( "                    dune-subgrid, dune-spgrid, dune-mmesh and dune-functions.")
+    print( "  optimization      Download and install glpk and nlopt.")
+    print( "  others            Download and install opm , metis and gstat.")
+    print( "")
+    print( "... or individually as:")
+    print( "  lecture           Download dumux-lecture.")
+    print( "  course            Download dumux-course.")
+
+    print( "")
+    print( "  ug                Download dune-uggrid.")
+    print( "  alugrid           Download dune-alugrid.")
+    print( "  foamgrid          Download dune-foamgrid.")
+    print( "  subgrid           Download dune-subgrid.")
+    print( "  spgrid            Download dune-spgrid.")
+    print( "  mmesh             Download dune-mmesh.")
+    print( "  functions         Download dune-functions.")
+
+    print( "")
     print( "  glpk             Download and install glpk.")
-    print( "  gstat            Download and install gstat.")
-    print( "  lecture          Download the dumux-lecture.")
-    print( "  metis            Install the METIS graph partitioner.")
-    print( "  multidomain      Download dune-multidomain.")
-    print( "  multidomaingrid  Download and patch dune-multidomaingrid.")
     print( "  nlopt            Download and install nlopt.")
+
+    print( "")
     print( "  opm              Download opm modules required for cornerpoint grids.")
-    print( "  pdelab           Download dune-pdelab.")
-    print( "  typetree         Download dune-typetree.")
-    print( "  ug               Install the UG grid library.")
+    print( "  metis            Install the METIS graph partitioner.")
+    print( "  gstat            Download and install gstat.")
+
     print( "")
     print( "The following options are recoginzed:")
+    print( "    --parallel       Enable parallelization if available.")
+    print( "    --debug          Compile with debugging symbols and without optimization.")
     print( "    --clean          Delete all files for the given packages.")
     print( "    --download       Only download the packages.")
 
+
+def installDumuxExtensions():
+    installLecture()
+    installCourse()
+
+def installDuneExtensions():
+    installUG()
+    installAluGrid()
+    installFoamGrid()
+    installSubGrid()
+    installSpGrid()
+    installMmesh()
+    installFunctions()
+
+
+def installOptimizationStuff():
+    createExternalDirectory()
+    installGLPK()
+    installNLOPT()
+
+def installOthers():
+    createExternalDirectory()
+    installOPM()
+    installMETIS()
+    installGStat()
+
+
 if __name__ == "__main__":
+
     CORRECT_LOCATION_FOR_DUNE_MODULES = False
     ENABLE_MPI = False
     ENABLE_DEBUG = False
     ENABLE_PARALLEL = False
     CLEANUP = False
     DOWNLOAD_ONLY = False
-
+    DUNE_VERSION="2.7"
     DUMUX_VERSION="3.2"
 
     TOPDIR = os.getcwd()
     EXTDIR = os.getcwd() + "/external"
 
-    arguments = sys.argv[1:]
+    if len(sys.argv)==1 or sys.argv[1] == "-h":
+        usage()
+        sys.exit()
 
+    arguments = sys.argv[1:]
+    # options are set
     if("--debug" in arguments):
         ENABLE_DEBUG = True
+    if("--clean" in arguments):
+        CLEANUP = True
     if("--download" in arguments):
         DOWNLOAD_ONLY = True
-<<<<<<< HEAD
     if("--parallel" in arguments):
         ENABLE_PARALLEL = True
         ENABLE_MPI = True
@@ -397,26 +432,10 @@ if __name__ == "__main__":
         MPICXX = subprocess.check_output(["which", "mpicxx"]).decode().strip()
         MPIF77 = subprocess.check_output(["which", "mpif77"]).decode().strip()
 
-    #print(sys.argv[0])
-    #print(sys.argv[1])
-
-
-    #parser = argparse.ArgumentParser()
-    #parser.add_argument('-alugrid', required='False', help='Download dune-alugrid')
-    #parser.add_argument('-course', help='Download the dumux-course', required='False')
-    #args = parser.parse_args()
-    #print(args)
-=======
-
     # Downloads and installations
     # group installation
     if("all" in arguments):
-        if CLEANUP:
-            print("All external modules are deleted")
-        elif DOWNLOAD_ONLY:
-            print("All external modules are downloaded")
-        else:
-            print("All external modules are installed")
+        print("All external modules are installed")
         installDumuxExtensions()
         installDuneExtensions()
         installOptimizationStuff()
@@ -425,33 +444,16 @@ if __name__ == "__main__":
         sys.exit()
 
     if("dumux-extensions" in arguments):
-        if(CLEANUP):
-            print("dumux-extensions are deleted, this includes: dumux-course and dumux-lecture")
-        else:
-            print("dumux-extensions are downloaded, this includes: dumux-course and dumux-lecture")
+        print("dumux-extensions are downloaded, this includes: dumux-course and dumux-lecture")
         installDumuxExtensions()
     if("dune-extensions" in arguments):
-        if(CLEANUP):
-            print("dune-extensions are deleted, this includes: dune-uggrid, dune-alugrid, dune-foamgrid, dune-subgrid, dune-spgrid and dune-mesh")
-        else:
-            print("dune-extensions are downloaded, this includes: dune-uggrid, dune-alugrid, dune-foamgrid, dune-subgrid, dune-spgrid and dune-mesh")
+        print("dune-extensions are downloaded, this includes: dune-uggrid, dune-alugrid, dune-foamgrid, dune-subgrid, dune-spgrid and dune-mesh")
         installDuneExtensions()
     if("optimization" in arguments):
-        if(CLEANUP):
-            print("libraries for solving optimization problems are installed, this includes: glpk and nlopt")
-        elif DOWNLOAD_ONLY:
-            print("libraries for solving optimization problems are downloaded, this includes: glpk and nlopt")
-        else:
-            print("libraries for solving optimization problems are installed, this includes: glpk and nlopt")
+        print("libraries for solving optimization problems are installed, this includes: glpk and nlopt")
         installOptimizationStuff()
-
     if("others" in arguments):
-        if CLEANUP:
-            print("other libraries are deleted, this includes: opm, metis and gstat")
-        elif DOWNLOAD_ONLY:
-            print("other libraries are downloaded, this includes: opm, metis and gstat")
-        else:
-            print("other libraries are installed, this includes: opm, metis and gstat")
+        print("other libraries are installed, this includes: opm, metis and gstat")
         installOthers()
 
     # single modules/packages installations
@@ -461,7 +463,6 @@ if __name__ == "__main__":
     if("course" in arguments):
         print("dumux-course is installed")
         installCourse()
-
     if("ug" in arguments):
         print("UG grid library is installed")
         installUG()
@@ -483,21 +484,18 @@ if __name__ == "__main__":
     if("functions" in arguments):
         print( " dune-functions is downloaded")
         installFunctions()
-
     if("glpk" in arguments):
         print( " glpk is is installed")
         createExternalDirectory()
         installGLPK()
-    if("glpk" in arguments):
+    if("nlopt" in arguments):
         print( " nlopt is is installed")
         createExternalDirectory()
         installNLOPT()
-
     if("opm" in arguments):
         print( " opm modules are downloaded")
         createExternalDirectory()
         installOPM()
-
     if("metis" in arguments):
         print( " metis is installed")
         createExternalDirectory()
@@ -506,8 +504,3 @@ if __name__ == "__main__":
         print( " gstat is installed")
         createExternalDirectory()
         installGStat()
-
-    if len(sys.argv)==1 or sys.argv[1] == "-h":
-        usage()
-        sys.exit()
->>>>>>> fe65c2103... [installexternal] updated installexternal and translated shell script to python script
