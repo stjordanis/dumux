@@ -117,20 +117,16 @@ class ForchheimerVelocity
     * \note We restrict the use of Forchheimer's law to diagonal permeability tensors so far. This might be changed to
     * general tensors using eigenvalue decomposition to get \f$\sqrt{\mathbf{K}}\f$
     */
-    template<class Problem, class ElementVolumeVariables, class ElementFluxVarsCache>
+    template<class Problem, class ElementVolumeVariables>
     static DimWorldVector velocity(const Problem& problem,
                                    const Element& element,
                                    const FVElementGeometry& fvGeometry,
                                    const ElementVolumeVariables& elemVolVars,
                                    const SubControlVolumeFace& scvf,
                                    int phaseIdx,
-                                   const ElementFluxVarsCache& elemFluxVarsCache,
+                                   const DimWorldMatrix sqrtK,
                                    const DimWorldVector darcyVelocity)
     {
-        // Get the harmonic mean of the square root of permeability
-        const auto& fluxVarsCache = elemFluxVarsCache[scvf];
-        const auto& sqrtK = fluxVarsCache.harmonicMeanSqrtPermeability();
-
         // Obtain the Forchheimer coefficient from the spatial parameters
         const Scalar forchCoeff = problem.spatialParams().forchCoeff(scvf);
 

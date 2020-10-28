@@ -190,7 +190,15 @@ class CCTpfaForchheimersLaw<ScalarType, GridGeometry, ForchheimerVelocity, /*isN
         DimWorldVector darcyVelocity = scvf.unitOuterNormal();
         darcyVelocity *= darcyFlux / Extrusion::area(scvf);
 
-        const auto velocity = ForchheimerVelocity::velocity(problem, element, fvGeometry, elemVolVars, scvf, phaseIdx, elemFluxVarsCache, darcyVelocity);
+        const auto velocity = ForchheimerVelocity::velocity(problem,
+                                                            element,
+                                                            fvGeometry,
+                                                            elemVolVars,
+                                                            scvf,
+                                                            phaseIdx,
+                                                            elemFluxVarsCache[scvf].harmonicMeanSqrtPermeability(),
+                                                            darcyVelocity);
+
         Scalar flux = velocity * scvf.unitOuterNormal();
         flux *= Extrusion::area(scvf);
         return flux;
