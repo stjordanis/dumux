@@ -165,7 +165,7 @@ public:
         BoundaryTypes values;
         values.setAllNeumann();
 
-        if (couplingManager().isCoupledEntity(CouplingManager::darcyIdx, scvf))
+        if (couplingManager().isCoupledEntity(CouplingManager::porousMediumIdx, scvf))
             values.setAllCouplingNeumann();
 
 
@@ -192,7 +192,7 @@ public:
     {
         NumEqVector values(0.0);
 
-        if (couplingManager().isCoupledEntity(couplingManager().darcyIdx, scvf))
+        if (couplingManager().isCoupledEntity(couplingManager().porousMediumIdx, scvf))
             values = couplingManager().couplingData().massCouplingCondition(element, fvGeometry, elemVolVars, scvf, DiffusionCoefficientAveragingType::harmonic);
 
         return values;

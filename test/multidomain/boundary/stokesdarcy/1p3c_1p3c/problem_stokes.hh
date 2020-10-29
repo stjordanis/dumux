@@ -173,7 +173,7 @@ public:
             values.setNeumann(Indices::conti0EqIdx + 2);
         }
 
-        if(couplingManager().isCoupledEntity(couplingManager().stokesIdx, scvf))
+        if(couplingManager().isCoupledEntity(couplingManager().freeFlowIdx, scvf))
         {
             values.setNeumann(Indices::conti0EqIdx);
             values.setNeumann(Indices::conti0EqIdx+1);
@@ -213,7 +213,7 @@ public:
     {
         NumEqVector values(0.0);
 
-        if(couplingManager().isCoupledEntity(couplingManager().stokesIdx, scvf))
+        if(couplingManager().isCoupledEntity(couplingManager().freeFlowIdx, scvf))
         {
             values[Indices::momentumYBalanceIdx] = couplingManager().couplingData().momentumCouplingCondition(element, fvGeometry, elemVolVars, elemFaceVars, scvf);
 
