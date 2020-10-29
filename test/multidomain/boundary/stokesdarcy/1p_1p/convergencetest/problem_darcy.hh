@@ -180,6 +180,13 @@ public:
 
         values.setAllDirichlet();
 
+        //corners will not be handled as coupled
+        if(onLeftBoundary_(scv.dofPosition()) || onRightBoundary_(scv.dofPosition()))
+        {
+            values.setAllDirichlet();
+            return values;
+        }
+
         auto fvGeometry = localView(this->gridGeometry());
         fvGeometry.bindElement(element);
         for (auto&& scvf : scvfs(fvGeometry))
@@ -255,6 +262,10 @@ public:
                 return rhsRybak_(globalPos);
             case TestCase::Schneider:
                 return rhsSchneiderEtAl_(globalPos);
+            case TestCase::BJSymmetrized:
+                return rhsBJSymmetrized_(globalPos);
+            case TestCase::NewICNonSymmetrized:
+                return rhsNewICNonSymmetrized_(globalPos);
             default:
                 DUNE_THROW(Dune::InvalidStateException, "Invalid test case");
         }
@@ -292,6 +303,10 @@ public:
                 return analyticalSolutionRybak_(globalPos);
             case TestCase::Schneider:
                 return analyticalSolutionSchneiderEtAl_(globalPos);
+            case TestCase::BJSymmetrized:
+                return analyticalSolutionBJSymmetrized_(globalPos);
+            case TestCase::NewICNonSymmetrized:
+                return analyticalSolutionNewICNonSymmetrized_(globalPos);
             default:
                 DUNE_THROW(Dune::InvalidStateException, "Invalid test case");
         }
@@ -413,6 +428,54 @@ private:
                                              *sin(omega*x);
         return NumEqVector(result);
     }
+
+    // exact solution for BJ-IC with symmetrized stress tensor (by Elissa Eggenweiler)
+    Dune::FieldVector<Scalar, 3> analyticalSolutionBJSymmetrized_(const GlobalPosition& globalPos) const
+    {
+        Dune::FieldVector<Scalar, 3> sol(0.0);
+        const Scalar x = globalPos[0];
+        const Scalar y = globalPos[1];
+
+        using std::exp; using std::sin; using std::cos;
+        sol[velocityXIdx] = 2.0*x*x + 2.0*x*y - 6.0*x - 2.0*y*y + 3.0*y - 5.0;
+        sol[velocityYIdx] = 1.0*x*x + 4.0*x*y - 9.0*x - 1.0*y*y - 1.0;
+        sol[pressureIdx] = -x*(x-1.0)*(y-1.0) + 1.0/3.0*(y-1.0)*(y-1.0)*(y-1.0) + 4.0 + 2.0*y + x*x;
+        return sol;
+    }
+
+    // exact solution for BJ-IC with symmetrized stress tensor (by Elissa Eggenweiler)
+    NumEqVector rhsBJSymmetrized_(const GlobalPosition& globalPos) const
+    {
+        const Scalar x = globalPos[0];
+        using std::sin;
+        return NumEqVector(8.0*x - 6.0);
+    }
+
+
+    // exact solution for new IC with non-symmetrized stress tensor (by Elissa Eggenweiler)
+    Dune::FieldVector<Scalar, 3> analyticalSolutionNewICNonSymmetrized_(const GlobalPosition& globalPos) const
+    {
+        Dune::FieldVector<Scalar, 3> sol(0.0);
+        const Scalar x = globalPos[0];
+        const Scalar y = globalPos[1];
+
+        using std::exp; using std::sin; using std::cos;
+        sol[velocityXIdx] = x*(y-1.0) + (x-1.0)*(y-1.0) - 3.0;
+        sol[velocityYIdx] = x*(x-1.0) - (y-1.0)*(y-1.0) - 2.0;
+        sol[pressureIdx] = x*(1.0-x)*(y-1.0) + 1.0/3.0*(y-1.0)*(y-1.0)*(y-1.0) + 3.0*x + 2.0*y + 1.0;
+        return sol;
+    }
+
+    // exact solution for new IC with non-symmetrized stress tensor (by Elissa Eggenweiler)
+    NumEqVector rhsNewICNonSymmetrized_(const GlobalPosition& globalPos) const
+    {
+        return NumEqVector(0.0);
+    }
+
+    bool onLeftBoundary_(const GlobalPosition &globalPos) const
+    { return globalPos[0] < this->gridGeometry().bBoxMin()[0] + eps_;  }
+    bool onRightBoundary_(const GlobalPosition &globalPos) const
+    { return globalPos[0] > this->gridGeometry().bBoxMax()[0] - eps_;  }
 
     static constexpr Scalar eps_ = 1e-7;
     std::shared_ptr<CouplingManager> couplingManager_;
