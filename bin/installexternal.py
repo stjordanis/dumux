@@ -61,10 +61,8 @@ packages.add_choice('gstat', help="Download and install gstat.")
 options = parser.add_mutually_exclusive_group(required=False)
 options.add_argument('--clean', action="store_true", default=False,
                      help='Delete all files for the given packages.')
-options.add_argument('--download', action="store_true", default=True,
+options.add_argument('--download', action="store_true", default=False,
                      help='Only download the packages.')
-options.add_argument('--config', action="store_true", default=False,
-                     help='Only config the packages.')
 options.add_argument('--dune_branch', action="store_true", default="releases/2.7",
                      help='Dune branch to be checked out.')
 options.add_argument('--dumux_branch', action="store_true", default="releases/3.2",
@@ -74,13 +72,12 @@ args = vars(parser.parse_args())
 
 def show_message(message):
     print("*" * 120)
-    print("")
-    print(*message, sep='\n')
+    print(message)
     print("")
     print("*" * 120)
 
-def run_command(command):
-    with open("../installexternal.log", "a") as log:
+def run_command(command, currentdir='.'):
+    with open(currentdir+"/installexternal.log", "a") as log:
         popen = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         for line in popen.stdout:
             log.write(line)
@@ -112,10 +109,11 @@ def install_external(args):
     packages = args['packages']
     cleanup = args['clean']
     download = args['download']
-    config= args['config']
 
+    final_message = []
     top_dir = os.getcwd()
     ext_dir =  top_dir + "/external"
+
 
     # Prepare a list of packages
     packages = []
@@ -136,8 +134,14 @@ def install_external(args):
             "You cannot install it in this folder.")
         return
 
+    # clear the log file
+    logdir = ext_dir if os.path.exists(ext_dir) else top_dir
+    open(logdir+'/installexternal.log', 'w').close()
 
     for package in packages:
+
+        # Package name for final message
+        final_message.append('[---'+package+'---]')
 
         # Set the directory: create ext_dir for external packages
         if not any([re.compile(p).match(package) for p in ['dumux','dune']]):
@@ -147,89 +151,91 @@ def install_external(args):
         # Set the branch
         if 'dumux' in package:
             branch = dumux_branch
-        elif 'dune' in package:
-            branch = dune_branch
         elif 'mmesh' in package:
             branch = "release/1.1"
+        elif 'dune' in package:
+            branch = dune_branch
 
         # Run the requested command
         if cleanup:
             if os.path.exists(package):
                 # Remove
                 shutil.rmtree(package)
-                print("{} is removed.".format(package))
+                # Save message to be shown at the end
+                final_message.append("{} has been removed.".format(package))
             else:
-                # Print No-Folder-Remove message
-                print("The folder {} does not exist.".format(package))
+                # Save message to be shown at the end
+                final_message.append("The folder {} does not exist.".format(package))
             continue
 
-        if download:
+        else:
             # Check if tarball
             tarball = external_urls[package].endswith('tar.gz')
 
             if not os.path.exists(package):
 
                 if tarball:
+
                     # Download the tarfile
-                    print("{} is being downloaded".format(package))
                     filedata = urllib.request.urlopen(external_urls[package])
                     datatowrite = filedata.read()
 
                     with open(ext_dir + "/" + package +".tar.gz", 'wb') as f:
                         f.write(datatowrite)
+                    # Save message to be shown at the end
+                    final_message.append("{} has been sucessfully downloaded.".format(package))
+
+                    # Start Installation if the flag download is set to false.
+                    if not download:
+                        # Extract
+                        tf = tarfile.open(package+".tar.gz")
+                        tf.extractall()
+
+                        # Rename
+                        shutil.move(os.path.commonprefix(tf.getnames()), package)
+
+                        # Start the configuration
+                        os.chdir(ext_dir + "/"+package)
+                        if package == 'gstat':
+                            with open('configure', 'r+') as f:
+                                content = f.read()
+                                f.seek(0)
+                                f.truncate()
+                                f.write(content.replace('doc/tex/makefile', ''))
+
+                        # Run Configuration command
+                        configcmd = "./configure" if package != 'metis' else ["make", "config"]
+                        run_command(configcmd, currentdir=ext_dir)
+                        run_command("make", currentdir=ext_dir)
+
+                        # Save message to be shown at the end
+                        if os.path.exists(ext_dir+ "/" + package):
+                            final_message.append("{} has been successfully installed.".format(package))
 
                 else:
                     # Clone from repo
                     git_clone(external_urls[package], branch)
+                    # Save message to be shown at the end
+                    final_message.append("{} has been sucessfully cloned.".format(package))
             else:
-                if not tarball:
+                if tarball:
+                    final_message.append("{} has been already installed.".format(package))
+                else:
                     # Checkout to the requested branch
                     os.chdir(top_dir + "/" + package)
                     subprocess.Popen(["git", "checkout", branch])
-                    print("-- Skip cloning {} because the folder already exists.".format(package))
+                    # Save message to be shown at the end
+                    final_message.append("-- Skip cloning {}, because the folder already exists.".format(package))
                     continue
 
-        # Config
-        if config:
-            # Extract
-            tf = tarfile.open(package+".tar.gz")
-            tf.extractall()
-
-            # Rename
-            shutil.move(os.path.commonprefix(tf.getnames()), package)
-
-            # Start the configuration
-            os.chdir(ext_dir + "/"+package)
-            if package == 'gstat':
-                with open('configure', 'r+') as f:
-                    content = f.read()
-                    f.seek(0)
-                    f.truncate()
-                    f.write(content.replace('doc/tex/makefile', ''))
-
-            # Configuration
-            configcmd = "./configure" if package != 'metis' else ["make", "config"]
-            run_command(configcmd) #subprocess.run(configcmd)
-            run_command("make") #subprocess.run("make")
-
-            if os.path.exists(package):
-                print("Successfully installed {}.".format(package))
+        # Save post installation message if there is any.
+        if package in messages.keys():
+            final_message.extend(messages[package])
 
         # Change to top_dir
         os.chdir(top_dir)
 
-    # Prepare the list of messages to be shown.
-    final_message = [messages[key][0] for key in args.keys() if args[key] is True]
-    for package in packages:
-        if package in messages.keys():
-            final_message.append('\n[---'+package+'---]')
-            final_message.extend(messages[package])
-
-    return final_message
-
-
-# clear the log file
-open('installexternal.log', 'w').close()
+    return '\n'.join(final_message)
 
 #################################################################
 #################################################################
@@ -274,10 +280,7 @@ messages ={
                 "  -DUSE_MPI=ON", "",
                 "Maybe you also have to install the following packages (see the",
                 " opm prerequisites at opm-project.org):",
-                "  BLAS, LAPACK, Boost, SuiteSparse, Zoltan"],
-    'clean': ['The requested cleaning task has been completed.'],
-    'download': ['The requested download task has been completed.'],
-    'config': ['The requested installation task has been completed.']
+                "  BLAS, LAPACK, Boost, SuiteSparse, Zoltan"]
 }
 
 
