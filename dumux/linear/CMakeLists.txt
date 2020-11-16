@@ -6,9 +6,11 @@ linearsolveracceptsmultitypematrix.hh
 linearsolverparameters.hh
 linearsolvertraits.hh
 matrixconverter.hh
+operators.hh
 parallelhelpers.hh
 pdesolver.hh
 preconditioners.hh
+scalarproducts.hh
 scotchbackend.hh
 seqsolverbackend.hh
 solver.hh
