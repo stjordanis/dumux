@@ -26,8 +26,19 @@ class ChoicesAction(argparse._StoreAction):
     def _get_subactions(self):
         return self._choices_actions
 
+def show_message(message):
+    print("*" * 120)
+    print(message)
+    print("")
+    print("*" * 120)
+
+
+if len(sys.argv) == 1:
+    show_message('No options given. For more information run the following command: \n ./installexternal.py --help')
+    sys.exit()
+
 parser = argparse.ArgumentParser(prog='installexternal',
-                                 usage='./installexternal.py [OPTIONS] PACKAGES"',
+                                 usage='./installexternal.py [OPTIONS] PACKAGES',
                                  description='This script downloads dumux and dune extenstions\
                                      and installs some of External Libraries and Modules.')
 parser.register('action', 'store_choice', ChoicesAction)
@@ -63,18 +74,15 @@ options.add_argument('--clean', action="store_true", default=False,
                      help='Delete all files for the given packages.')
 options.add_argument('--download', action="store_true", default=False,
                      help='Only download the packages.')
-options.add_argument('--dune_branch', action="store_true", default="releases/2.7",
+
+parser.add_argument('--dune_branch', default="releases/2.7",
                      help='Dune branch to be checked out.')
-options.add_argument('--dumux_branch', action="store_true", default="releases/3.2",
+parser.add_argument('--dumux_branch', default="releases/3.3",
                      help='Dumux branch to be checked out.')
+parser.add_argument('--opm_branch', default="release/2020.10",
+                     help='Opm branch to be checked out.')
 
 args = vars(parser.parse_args())
-
-def show_message(message):
-    print("*" * 120)
-    print(message)
-    print("")
-    print("*" * 120)
 
 def run_command(command, currentdir='.'):
     with open(currentdir+"/installexternal.log", "a") as log:
@@ -92,7 +100,7 @@ def run_command(command, currentdir='.'):
             print("\n")
             message = "\n    (Error) The command {} returned with non-zero exit code\n".format(command)
             message += "\n    If you can't fix the problem yourself consider reporting your issue\n"
-            message += "    on the mailing list (dumux@listserv.uni-stuttgart.de) and attach the file 'installdumux.log'\n"
+            message += "    on the mailing list (dumux@listserv.uni-stuttgart.de) and attach the file 'installexternal.log'\n"
             show_message(message)
             sys.exit(1)
 
@@ -103,9 +111,9 @@ def git_clone(url, branch=None):
     result = run_command(command=[*clone, url])
 
 def install_external(args):
-
     dune_branch = args['dune_branch']
     dumux_branch = args['dumux_branch']
+    opm_branch = args['opm_branch']
     packages = args['packages']
     cleanup = args['clean']
     download = args['download']
@@ -139,12 +147,12 @@ def install_external(args):
     open(logdir+'/installexternal.log', 'w').close()
 
     for package in packages:
-
+        os.chdir(top_dir)
         # Package name for final message
         final_message.append('[---'+package+'---]')
 
         # Set the directory: create ext_dir for external packages
-        if not any([re.compile(p).match(package) for p in ['dumux','dune']]):
+        if not any([re.compile(p).match(package) for p in ['dumux','dune', 'opm']]):
             os.makedirs(ext_dir, exist_ok=True)
             os.chdir(ext_dir)
 
@@ -155,12 +163,16 @@ def install_external(args):
             branch = "release/1.1"
         elif 'dune' in package:
             branch = dune_branch
+        elif 'opm' in package:
+            branch = opm_branch
 
         # Run the requested command
         if cleanup:
+            if os.path.isfile(package + '.tar.gz'): os.remove(package + '.tar.gz')
             if os.path.exists(package):
                 # Remove
                 shutil.rmtree(package)
+
                 # Save message to be shown at the end
                 final_message.append("{} has been removed.".format(package))
             else:
@@ -222,10 +234,11 @@ def install_external(args):
                     final_message.append("{} has been already installed.".format(package))
                 else:
                     # Checkout to the requested branch
-                    os.chdir(top_dir + "/" + package)
+                    os.chdir(top_dir + '/' + package)
                     subprocess.Popen(["git", "checkout", branch])
                     # Save message to be shown at the end
                     final_message.append("-- Skip cloning {}, because the folder already exists.".format(package))
+                    final_message.append("-- Checking out {} ".format(package) + branch)
                     continue
 
         # Save post installation message if there is any.
@@ -247,7 +260,7 @@ dumux_git_baseurl = "https://git.iws.uni-stuttgart.de/dumux-repositories/"
 external_urls = {
     "dumux-lecture": dumux_git_baseurl + "dumux-lecture.git",
     "dumux-course": dumux_git_baseurl + "dumux-course.git",
-    "dune-uggrid": dune_git_baseurl + "/staging/dune-uggrid",
+    "dune-uggrid": dune_git_baseurl + "/staging/dune-uggrid.git",
     "dune-alugrid": dune_git_baseurl + "extensions/dune-alugrid.git",
     "dune-foamgrid": dune_git_baseurl + "extensions/dune-foamgrid.git",
     "dune-subgrid": "https://git.imp.fu-berlin.de/agnumpde/dune-subgrid.git",
