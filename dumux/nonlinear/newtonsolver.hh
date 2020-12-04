@@ -51,6 +51,7 @@
 #include <dumux/io/format.hh>
 #include <dumux/linear/linearsolveracceptsmultitypematrix.hh>
 #include <dumux/linear/matrixconverter.hh>
+#include <dumux/linear/algebratraits.hh>
 #include <dumux/assembly/partialreassembler.hh>
 
 #include "newtonconvergencewriter.hh"
@@ -151,12 +152,6 @@ void assign(To& to, const From& from)
     else
         DUNE_THROW(Dune::Exception, "Values are not assignable to each other!");
 }
-
-template<class T, std::enable_if_t<Dune::IsNumber<std::decay_t<T>>::value, int> = 0>
-constexpr std::size_t blockSize() { return 1; }
-
-template<class T, std::enable_if_t<!Dune::IsNumber<std::decay_t<T>>::value, int> = 0>
-constexpr std::size_t blockSize() { return std::decay_t<T>::size(); }
 
 } // end namespace Detail
 
