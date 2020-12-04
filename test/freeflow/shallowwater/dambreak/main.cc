@@ -44,6 +44,7 @@
 
 #if DUNE_VERSION_GT_REV(DUNE_ISTL,2,7,0)
 #include <dumux/linear/istlsolvers.hh>
+#include <dumux/linear/algebratraits.hh>
 #else
 #include <dumux/linear/amgbackend.hh>
 #endif
@@ -131,9 +132,8 @@ int main(int argc, char** argv)
 
     // the linear solver
 #if DUNE_VERSION_GT_REV(DUNE_ISTL,2,7,0)
-    constexpr auto blockSize = std::decay_t<decltype(x[0])>::dimension;
-    using BlockType = Dune::FieldVector<double, blockSize>;
-    using LinearSolver = ILUBiCGSTABIstlSolver<LinearSolverTraits<GridGeometry>, Assembler::JacobianMatrix, Dune::BlockVector<BlockType>>;
+    using LinearSolver = ILUBiCGSTABIstlSolver<LinearSolverTraits<GridGeometry>,
+                                               LinearAlgebraTraitsFromAssembler<Assembler>>;
 #else
     using LinearSolver = AMGBiCGSTABBackend<LinearSolverTraits<GridGeometry>>;
 #endif
