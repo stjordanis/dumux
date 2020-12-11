@@ -53,7 +53,9 @@ print("--> Using install script: {} to install dependencies for module {}.".form
 # setpermissions helper script
 setPermissionsFile = os.path.join(os.getcwd(), 'docker/setpermissions.sh')
 with open(setPermissionsFile, 'w') as permissionFile:
-    permissionFile.write('\n'.join(['echo "Setting permissions for shared folder"',
+    permissionFile.write('\n'.join(['#!/usr/bin/env bash',
+                                    '',
+                                    'echo "Setting permissions for shared folder"',
                                     '',
                                     '# if HOST_UID or HOST_GID are passed to the container',
                                     '# as environment variables, e.g. by calling',
@@ -91,10 +93,11 @@ with open(welcomeFile, 'w') as welcome:
                              '*'*50,
                              'Welcome to the dumux-pub Docker container "{}"!'.format(moduleName),
                              '',
-                             'You can run pre-compiled examples in the sub-folders of PATH_TO_MODULES/{moduleFolder}/build-cmake/,',
-                             'or compile them there using make <example>. Note that the container does not have graphics support,',
-                             'but copying the output (e.g. VTK files) to the folder /dumux/shared will make them available outside',
-                             'this container on the host for display.']))
+                             'You can run pre-compiled examples in the sub-folders of PATH_TO_MODULES/{}/build-cmake/,'.format(moduleFolder),
+                             'or compile them there using make <example>.',
+                             '',
+                             'Note that the container does not have graphics support, but copying the output (e.g. VTK files) to the folder',
+                             '/dumux/shared will make them available outside this container on the host for display.\n']))
 print("--> Created welcome message displayed on Docker container startup.")
 
 # readme
@@ -154,12 +157,6 @@ with open(pubTableFile, "w") as pubTable:
                               '# ... that is mounted into this container directory:',
                               'SHARED_DIR_CONTAINER="/dumux/shared"',
                               '',
-                              'executeandlog ()',
-                              '{',
-                              '    echo "[$@]"',
-                              '    eval $@',
-                              '}',
-                              '',
                               'help ()',
                               '{',
                               '    echo ""',
@@ -176,16 +173,12 @@ with open(pubTableFile, "w") as pubTable:
                               'open()',
                               '{',
                               '    IMAGE="$1"',
-                              '    COMMAND="docker create -ti \\',
-                              '             -e HOST_UID=$(id -u $USER) \\',
-                              '             -e HOST_GID=$(id -g $USER) \\',
-                              '             -v $SHARED_DIR_HOST:$SHARED_DIR_CONTAINER \\',
-                              '             --name dumuxpub_{} \\'.format(dockerTag),
-                              '             $IMAGE /bin/bash"',
-                              '',
-                              '    CONTAINER_NAME=$(executeandlog $COMMAND | tail -n 1)',
-                              '    executeandlog docker start -a -i $CONTAINER_NAME',
-                              '    executeandlog docker rm $CONTAINER_NAME',
+                              '    docker run -it \\',
+                              '                -e HOST_UID=$(id -u $USER) \\',
+                              '                -e HOST_GID=$(id -g $USER) \\',
+                              '                -v $SHARED_DIR_HOST:$SHARED_DIR_CONTAINER \\',
+                              '                --name dumuxpub_{} \\'.format(dockerTag),
+                              '                $IMAGE /bin/bash',
                               '}',
                               '',
                               '# Check if user specified valid command otherwise print help message',
