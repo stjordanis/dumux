@@ -24,6 +24,7 @@
 #include <dumux/common/math.hh>
 #include <dumux/common/exceptions.hh>
 #include <dumux/porousmediumflow/sequential/pressureproperties.hh>
+#include <dumux/linear/amgbackend.hh>
 #include <map>
 /**
  * @file
@@ -497,10 +498,6 @@ void FVPressure<TypeTag>::assemble(bool first)
 //    printmatrix(std::cout, A_, "global stiffness matrix after assempling", "row", 11,3);
 //    printvector(std::cout, f_, "right hand side", "row", 10);
 }
-
-// forward declaration
-template<class T>
-class AMGBiCGSTABBackend;
 
 namespace Detail {
 template<class T> struct isParallelAMGBackend : public std::false_type {};
