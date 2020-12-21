@@ -37,6 +37,7 @@
 #include <dumux/common/parameters.hh>
 #include <dumux/common/dumuxmessage.hh>
 #include <dumux/linear/linearsolvertraits.hh>
+#include <dumux/linear/algebratraits.hh>
 
 #if DUNE_VERSION_GT_REV(DUNE_ISTL,2,7,0)
 #include <dumux/linear/istlsolverfactorybackend.hh>
@@ -149,7 +150,8 @@ int main(int argc, char** argv)
 
     // the linear solver
 #if DUNE_VERSION_GT_REV(DUNE_ISTL,2,7,0)
-    using LinearSolver = IstlSolverFactoryBackend<LinearSolverTraits<GridGeometry>>;
+    using LinearSolver = IstlSolverFactoryBackend<LinearSolverTraits<GridGeometry>,
+                                                  LinearAlgebraTraitsFromAssembler<Assembler>>;
 #else
     using LinearSolver = AMGBiCGSTABBackend<LinearSolverTraits<GridGeometry>>;
 #endif
