@@ -12,10 +12,8 @@ workflow:
 build dumux:
   stage: build
   script:
-    - cd ..
-    - dunecontrol --opts=$DUNE_OPTS_FILE --only=dumux all
-    - cd dumux/build-cmake
-    - make -k -j8 build_tests
+    - dunecontrol --opts=$DUNE_OPTS_FILE --current all
+    - dunecontrol --opts=$DUNE_OPTS_FILE --current make -k -j8 build_tests
   artifacts:
     paths:
       - build-cmake
