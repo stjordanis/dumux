@@ -37,9 +37,9 @@
 #include <dumux/common/dumuxmessage.hh>
 #include <dumux/common/parameters.hh>
 #include <dumux/common/properties.hh>
-#include <dumux/io/grid/gridmanager.hh>
+#include <dumux/io/grid/gridmanager_yasp.hh>
 #include <dumux/io/staggeredvtkoutputmodule.hh>
-#include <dumux/linear/seqsolverbackend.hh>
+#include <dumux/linear/istlsolvers.hh>
 #include <dumux/nonlinear/newtonsolver.hh>
 #include <dumux/nonlinear/staggerednewtonconvergencewriter.hh>
 
@@ -108,7 +108,7 @@ int main(int argc, char** argv)
     auto assembler = std::make_shared<Assembler>(problem, gridGeometry, gridVariables);
 
     // the linear solver
-    using LinearSolver = Dumux::UMFPackBackend;
+    using LinearSolver = UMFPackIstlSolver;
     auto linearSolver = std::make_shared<LinearSolver>();
 
     // the non-linear solver
