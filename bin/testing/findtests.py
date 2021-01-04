@@ -20,7 +20,7 @@ def has_common_member(myset, mylist):
     return not myset.isdisjoint(mylist)
 
 def make_dryrun(config):
-    lines = subprocess.check_output(["make", "-n", config["target"]], encoding='ascii').splitlines()
+    lines = subprocess.check_output(["make", "--dry-run", config["target"]], encoding='ascii').splitlines()
     return [l for l in lines if "g++" in l]
 
 def build_command_and_dir(config, cache):
