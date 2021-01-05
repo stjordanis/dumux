@@ -1,6 +1,6 @@
 
-*********************************************************
-Welcome to the dumux-pub Docker container "${modName}"!
+*****************************************************************
+Welcome to the Docker container of the dumux module "${modName}"!
 
 You can run pre-compiled examples in the sub-folders of PATH_TO_MODULES/dumux-lecture/build-cmake/,
 or compile them there using make <example>.
