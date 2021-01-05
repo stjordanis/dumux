@@ -84,12 +84,12 @@ target = os.path.join(os.getcwd(), 'docker/README.md')
 substituteAndWrite(template, target, {'modName': moduleName, 'dockerTag': dockerTag})
 print("--> Created README.md on how to use the docker image.")
 
-# write pub table file (make it executable after creation)
+# write helper file for container spin-up (make it executable after creation)
 template = os.path.join(templateFolder, 'docker.sh.template')
 target = os.path.join(os.getcwd(), 'docker/docker_{}.sh'.format(dockerTag))
 substituteAndWrite(template, target, {'dockerTag': dockerTag})
 os.system("chmod +x " + target)
-print("--> Created pub table script to spin up the docker container.")
+print("--> Created helper script to spin up the docker container.")
 
 # write the docker file
 template = os.path.join(templateFolder, 'Dockerfile.template')
