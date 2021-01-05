@@ -1,11 +1,11 @@
-# Readme for the dumux pub table ${modName}
+# Readme for the dumux module ${modName}
 
 You created the Docker image ${dockerTag}. Next steps:
 
 * Try your container by running docker_${dockerTag}.sh open
   See below for instructions how to share files with the host system.
-* Push the docker image to DockerHub or the GitLab Docker registry of your dumux-pub module.
-  Look at the Registry tab of your dumux-pub module for help.
+* Push the docker image to DockerHub or the GitLab Docker registry of your dumux module.
+  Look at the Registry tab of your dumux module for help.
 
 * Replace the image name in docker_${dockerTag}.sh with the actual image name
   e.g. git.iws.uni-stuttgart.de:4567/dumux-pub/koch2017a.
@@ -15,10 +15,10 @@ You created the Docker image ${dockerTag}. Next steps:
 * Add the docker_${dockerTag}.sh script to the git repository (this is for the user)
   and add the following lines to your README.md:
 
-Using the pub table ${modName} with docker
+Using dumux module ${modName} with docker
 =============================================
 
-In order to run simulations of this pub table look
+In order to run simulations of this module look
 at the convenience script docker_${dockerTag}.sh.
 First download the script from the git repository.
 
@@ -27,7 +27,7 @@ is creating a new folder "dumux"
 $$ mkdir dumux
 change to the new folder
 $$ cd dumux
-and open the pub table by running
+and open the module image by running
 $$ docker_${dockerTag}.sh open
 
 The container will spin up. It will mount the "dumux"
