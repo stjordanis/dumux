@@ -12,7 +12,7 @@ the SRDA.
 The values are calculated using the equation of Span and Wagner """
 
 import requests
-import pandas as pd
+import numpy as np
 from io import StringIO
 from string import Template
 
@@ -55,12 +55,11 @@ for i in range(NUM_TEMP_STEPS):
     response.encoding = 'utf-8'
     text = response.text
     raw_data = StringIO(text)
-    df = pd.read_csv(raw_data, sep='\t')
+    values = np.genfromtxt(raw_data, delimiter='\t', names=True)
 
 # formate the data
-    temp = df["Density (mol/l)"]
-    density_vals += formate_values(df["Density (mol/l)"])
-    enthalpy_vals += formate_values(df["Enthalpy (kJ/mol)"])
+    density_vals += formate_values(values["Density_moll"])
+    enthalpy_vals += formate_values(values["Enthalpy_kJmol"])
 
 density_vals = density_vals[:-2]
 enthalpy_vals = enthalpy_vals[:-2]
