@@ -47,7 +47,7 @@ def fill_template(text, replacments):
 
 
 delta_temperature = (MAX_TEMP - MIN_TEMP) / (NUM_TEMP_STEPS - 1)
-delta_pressure = (MAX_PRESS - MIN_PRESS) / 1000000 / (NUM_PRESS_STEPS - 1)
+delta_pressure = (MAX_PRESS - MIN_PRESS) / (NUM_PRESS_STEPS - 1)
 
 density_vals = ''
 enthalpy_vals = ''
@@ -56,7 +56,7 @@ enthalpy_vals = ''
 for i in range(NUM_TEMP_STEPS):
     temperature = MIN_TEMP + i * delta_temperature
     response = requests.get('https://webbook.nist.gov/cgi/fluid.cgi?Action=Data&Wide=on&ID=C7732185&Type=IsoTherm&Digits=5&PLow='
-                            + str(MIN_PRESS/1000000) + '&PHigh=' + str(MAX_PRESS/1000000) + '&PInc=' + str(delta_pressure) + '&T=' + str(temperature)
+                            + str(MIN_PRESS) + '&PHigh=' + str(MAX_PRESS) + '&PInc=' + str(delta_pressure) + '&T=' + str(temperature)
                             + '&RefState=DEF&TUnit=K&PUnit=Pa&DUnit=mol%2Fl&HUnit=kJ%2Fmol&WUnit=m%2Fs&VisUnit=uPa*s&STUnit=N%2Fm')
     response.encoding = 'utf-8'
     text = response.text
