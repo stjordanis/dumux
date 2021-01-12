@@ -8,32 +8,32 @@
  * Generated using:
  *
  * python make_co2_table.py  using:
- * NUM_TEMP_STEPS = %NUM_TEMP_STEPS
- * MIN_TEMP = %MIN_TEMP;
- * MAX_TEMP = %MAX_TEMP;
- * MAX_PRESS_STEPS = %NUM_PRESS_STEPS;
- * MIN_PRESS = %MIN_PRESS;
- * MAX_PRESS = %MAX_PRESS;
+ * NUM_TEMP_STEPS = $NUM_TEMP_STEPS
+ * MIN_TEMP = $MIN_TEMP;
+ * MAX_TEMP = $MAX_TEMP;
+ * MAX_PRESS_STEPS = $NUM_PRESS_STEPS;
+ * MIN_PRESS = $MIN_PRESS;
+ * MAX_PRESS = $MAX_PRESS;
  */
 
 
 struct TabulatedDensityTraits {
     typedef double Scalar;
     static const char  *name;
-    static const int    numTempSteps = %NUM_TEMP_STEPS;
-    static constexpr Scalar minTemp = %MIN_TEMP;
-    static constexpr Scalar maxTemp = %MAX_TEMP;
-    static const int    numPressSteps = %NUM_PRESS_STEPS;
-    static constexpr Scalar minPress = %MIN_PRESS;
-    static constexpr Scalar maxPress = %MAX_PRESS;
+    static const int    numTempSteps = $NUM_TEMP_STEPS;
+    static constexpr Scalar minTemp = $MIN_TEMP;
+    static constexpr Scalar maxTemp = $MAX_TEMP;
+    static const int    numPressSteps = $NUM_PRESS_STEPS;
+    static constexpr Scalar minPress = $MIN_PRESS;
+    static constexpr Scalar maxPress = $MAX_PRESS;
     static const Scalar vals[numTempSteps][numPressSteps];
 };
 
 const char  *TabulatedDensityTraits::name = "density";
 
-const double TabulatedDensityTraits::vals[%NUM_TEMP_STEPS][%NUM_PRESS_STEPS] = 
+const double TabulatedDensityTraits::vals[$NUM_TEMP_STEPS][$NUM_PRESS_STEPS] = 
 {
-%DENSITY_VALS
+$DENSITY_VALS
 };
 
 typedef TabulatedCO2Properties< TabulatedDensityTraits > TabulatedDensity;
@@ -41,20 +41,20 @@ typedef TabulatedCO2Properties< TabulatedDensityTraits > TabulatedDensity;
 struct TabulatedEnthalpyTraits {
     typedef double Scalar;
     static const char  *name;
-    static const int    numTempSteps = %NUM_TEMP_STEPS;
-    static constexpr Scalar minTemp = %MIN_TEMP;
-    static constexpr Scalar maxTemp = %MAX_TEMP;
-    static const int    numPressSteps = %NUM_PRESS_STEPS;
-    static constexpr Scalar minPress = %MIN_PRESS;
-    static constexpr Scalar maxPress = %MAX_PRESS;
+    static const int    numTempSteps = $NUM_TEMP_STEPS;
+    static constexpr Scalar minTemp = $MIN_TEMP;
+    static constexpr Scalar maxTemp = $MAX_TEMP;
+    static const int    numPressSteps = $NUM_PRESS_STEPS;
+    static constexpr Scalar minPress = $MIN_PRESS;
+    static constexpr Scalar maxPress = $MAX_PRESS;
     static const Scalar vals[numTempSteps][numPressSteps];
 };
 
 const char  *TabulatedEnthalpyTraits::name = "enthalpy";
 
-const double TabulatedEnthalpyTraits::vals[%NUM_TEMP_STEPS][%NUM_PRESS_STEPS] = 
+const double TabulatedEnthalpyTraits::vals[$NUM_TEMP_STEPS][$NUM_PRESS_STEPS] = 
 {
-%ENTHALPY_VALS
+$ENTHALPY_VALS
 };
 
 typedef TabulatedCO2Properties< TabulatedEnthalpyTraits > TabulatedEnthalpy;

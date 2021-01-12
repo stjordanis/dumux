@@ -14,11 +14,11 @@ The values are calculated using the equation of Span and Wagner """
 import requests
 import pandas as pd
 from io import StringIO
+from string import Template
 
 # TODO: Shall the min and max values be included in the table?
 # TODO: Is NUM_STEPS the number of samples or the really number of steps?
 # TODO: Check why the values differ from the reference values!
-# TODO: Is it ok to use the template file?
 # TODO: Shall I better use a class
 
 NUM_TEMP_STEPS = 50
@@ -38,12 +38,6 @@ def formate_values(values):
         text += '     ' + format(value, '.15e') + ','
         if (i + 1) % 5 == 0:
             text += ' \n       '
-
-
-def fill_template(text, replacments):
-    for old in replacments:
-        text = text.replace(old, replacements[old])
-    return text
 
 
 delta_temperature = (MAX_TEMP - MIN_TEMP) / (NUM_TEMP_STEPS - 1)
@@ -73,18 +67,16 @@ enthalpy_vals = enthalpy_vals[:-2]
 
 # write the table by filling the gaps in the template
 f = open("co2values_template.inc", 'r')
-template = f.read()
-
-replacements = {"%NUM_TEMP_STEPS": format(NUM_TEMP_STEPS),
-                "%MIN_TEMP": format(MIN_TEMP, '.15e'),
-                "%MAX_TEMP": format(MAX_TEMP, '.15e'),
-                "%NUM_PRESS_STEPS": format(NUM_PRESS_STEPS),
-                "%MIN_PRESS": format(MIN_PRESS, '.15e'),
-                "%MAX_PRESS": format(MAX_PRESS, '.15e'),
-                "%DENSITY_VALS": density_vals,
-                "%ENTHALPY_VALS": enthalpy_vals}
-
-text_output = fill_template(template, replacements)
+template = Template(f.read())
+replacements = {"NUM_TEMP_STEPS": format(NUM_TEMP_STEPS),
+                "MIN_TEMP": format(MIN_TEMP, '.15e'),
+                "MAX_TEMP": format(MAX_TEMP, '.15e'),
+                "NUM_PRESS_STEPS": format(NUM_PRESS_STEPS),
+                "MIN_PRESS": format(MIN_PRESS, '.15e'),
+                "MAX_PRESS": format(MAX_PRESS, '.15e'),
+                "DENSITY_VALS": density_vals,
+                "ENTHALPY_VALS": enthalpy_vals}
+text_output = template.substitute(replacements)
 
 f = open("co2values.inc", 'w')
 f.write(text_output)
