@@ -11,6 +11,7 @@ the SRDA.
 
 The values are calculated using the equation of Span and Wagner """
 
+import urllib
 import requests
 import numpy as np
 from io import StringIO
@@ -49,9 +50,13 @@ enthalpy_vals = ''
 # get the data
 for i in range(NUM_TEMP_STEPS):
     temperature = MIN_TEMP + i * delta_temperature
-    response = requests.get('https://webbook.nist.gov/cgi/fluid.cgi?Action=Data&Wide=on&ID=C7732185&Type=IsoTherm&Digits=5&PLow='
-                            + str(MIN_PRESS) + '&PHigh=' + str(MAX_PRESS) + '&PInc=' + str(delta_pressure) + '&T=' + str(temperature)
-                            + '&RefState=DEF&TUnit=K&PUnit=Pa&DUnit=mol%2Fl&HUnit=kJ%2Fmol&WUnit=m%2Fs&VisUnit=uPa*s&STUnit=N%2Fm')
+    query = {'Action': 'Data', 'Wide': 'on', 'ID': 'C7732185', 'Type': 'IsoTherm',
+             'Digits': '5', 'PLow': str(MIN_PRESS), 'PHigh': str(MAX_PRESS),
+             'PInc': str(delta_pressure), 'T': str(temperature), 'RefState': 'DEF',
+             'TUnit': 'K', 'PUnit': 'Pa', 'DUnit': 'mol/l', 'HUnit': 'kJ/mol',
+             'WUnit': 'm/s', 'VisUnit': 'uPas', 'STUnit': 'N/m'}
+    response = requests.get('https://webbook.nist.gov/cgi/fluid.cgi?'
+                            + urllib.parse.urlencode(query))
     response.encoding = 'utf-8'
     text = response.text
     raw_data = StringIO(text)
