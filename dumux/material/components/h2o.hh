@@ -809,7 +809,7 @@ public:
                         + a4*temperature*temperature*temperature
                         + a5*temperature*temperature*temperature*temperature;
 
-            return viscosityM*op + viscosityA(1-op);
+            return viscosityM*op + viscosityA*(1-op);
         }
     }
 

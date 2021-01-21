@@ -296,6 +296,20 @@ public:
     }
 
     /*!
+     * \brief The dynamic viscosity \f$\mathrm{[Pa*s]}\f$ of steam.
+     *
+     * \param temperature temperature of component in \f$\mathrm{[K]}\f$
+     * \param pressure pressure of component in \f$\mathrm{[Pa]}\f$
+     * \param regularize defines, if the functions is regularized or not, set to true by default
+     *
+     * Case for vapor viscosity in a mixture.
+     */
+    static Scalar gasViscosityForMixtures(Scalar temperature, Scalar pressure, bool regularize=true)
+    {
+        return 1e-05;
+    }
+
+    /*!
      * \brief The dynamic viscosity \f$\mathrm{[Pa*s]}\f$ of pure water.
      *
      * \param temperature temperature of component in \f$\mathrm{[K]}\f$
