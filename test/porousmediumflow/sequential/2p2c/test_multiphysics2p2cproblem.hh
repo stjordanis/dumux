@@ -79,7 +79,7 @@ template<class TypeTag>
 struct FluidSystem<TypeTag, TTag::TestMultTwoPTwoC>
 {
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using type = FluidSystems::H2OAir<Scalar, Components::H2O<Scalar>>;
+    using type = FluidSystems::H2OAir<Scalar, Components::H2O<Scalar,/*useGasViscosityForMixtures=*/ true>>;
 };
 
 template<class TypeTag>

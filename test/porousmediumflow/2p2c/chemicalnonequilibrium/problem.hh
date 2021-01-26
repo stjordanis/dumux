@@ -75,7 +75,7 @@ private:
 public:
 
     using type = FluidSystems::H2OAir<Scalar,
-                                      Components::TabulatedComponent<Components::H2O<Scalar>>,
+                                      Components::TabulatedComponent<Components::H2O<Scalar, /*useGasViscosityForMixtures=*/ true>>,
                                       FluidSystems::H2OAirDefaultPolicy</*fastButSimplifiedRelations=*/true>,
                                       true /*useKelvinEquation*/>;
 };

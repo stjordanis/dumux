@@ -86,7 +86,7 @@ struct FluidSystem<TypeTag, TTag::Heterogeneous>
 {
     using type = FluidSystems::BrineCO2<GetPropType<TypeTag, Properties::Scalar>,
                                         HeterogeneousCO2Tables::CO2Tables,
-                                        Components::TabulatedComponent<Components::H2O<GetPropType<TypeTag, Properties::Scalar>>>,
+                                        Components::TabulatedComponent<Components::H2O<GetPropType<TypeTag, Properties::Scalar>>, /*useGasViscosityForMixtures=*/ true>,
                                         FluidSystems::BrineCO2DefaultPolicy</*constantSalinity=*/true, /*simpleButFast=*/true>>;
 };
 
@@ -124,7 +124,7 @@ struct FluidSystem<TypeTag, TTag::HeterogeneousNI>
 {
     using type = FluidSystems::BrineCO2<GetPropType<TypeTag, Properties::Scalar>,
                                         HeterogeneousCO2Tables::CO2Tables,
-                                        Components::TabulatedComponent<Components::H2O<GetPropType<TypeTag, Properties::Scalar>>>,
+                                        Components::TabulatedComponent<Components::H2O<GetPropType<TypeTag, Properties::Scalar>>, /*useGasViscosityForMixtures=*/ true>,
                                         FluidSystems::BrineCO2DefaultPolicy</*constantSalinity=*/true, /*simpleButFast=*/true>>;
 };
 

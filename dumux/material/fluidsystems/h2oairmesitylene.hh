@@ -51,7 +51,7 @@ namespace FluidSystems {
  * It assumes all phases to be ideal mixtures.
  */
 template <class Scalar,
-          class H2OType = Components::TabulatedComponent<Components::H2O<Scalar> > >
+          class H2OType = Components::TabulatedComponent<Components::H2O<Scalar>, /*useGasViscosityForMixtures=*/ true > >
 class H2OAirMesitylene
     : public Base<Scalar, H2OAirMesitylene<Scalar, H2OType> >
 {
@@ -349,7 +349,7 @@ public:
          */
         Scalar muResult;
         const Scalar mu[numComponents] = {
-            H2O::gasViscosityForMixtures(fluidState.temperature(phaseIdx), fluidState.pressure(phaseIdx)),
+            H2O::gasViscosity(fluidState.temperature(phaseIdx), fluidState.pressure(phaseIdx)),
             Air::gasViscosity(fluidState.temperature(phaseIdx), fluidState.pressure(phaseIdx)),
             NAPL::gasViscosity(fluidState.temperature(phaseIdx), NAPL::vaporPressure(fluidState.temperature(phaseIdx)))
         };

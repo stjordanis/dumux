@@ -74,7 +74,7 @@ template<class TypeTag>
 struct FluidSystem<TypeTag, TTag::Adaptive2p2c2d>
 {
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using type = FluidSystems::H2OAir<Scalar, Components::H2O<Scalar>>;
+    using type = FluidSystems::H2OAir<Scalar, Components::H2O<Scalar,/*useGasViscosityForMixtures=*/ true>>;
 };
 
 // Set the 2d Transport and Pressure model (already set as default in properties file)

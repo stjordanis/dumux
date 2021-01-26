@@ -71,7 +71,7 @@ class H2ON2
 
     // convenience using declarations
     using IdealGas = Dumux::IdealGas<Scalar>;
-    using TabulatedH2O = Components::TabulatedComponent<Dumux::Components::H2O<Scalar> >;
+    using TabulatedH2O = Components::TabulatedComponent<Dumux::Components::H2O<Scalar, /*useGasViscosityForMixtures=*/ true> >; //comment
     using SimpleN2 = Dumux::Components::N2<Scalar>;
 
 public:
@@ -489,7 +489,7 @@ public:
             // Wilke method (Reid et al.):
             Scalar muResult = 0;
             const Scalar mu[numComponents] = {
-                H2O::gasViscosityForMixtures(T, p),
+                H2O::gasViscosity(T, p),
                 N2::gasViscosity(T, p)
             };
 

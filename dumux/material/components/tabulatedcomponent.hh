@@ -557,33 +557,6 @@ public:
     }
 
     /*!
-     * \brief The dynamic viscosity \f$\mathrm{[Pa*s]}\f$ of gas.
-     *
-     * \param temperature temperature of component in \f$\mathrm{[K]}\f$
-     * \param pressure pressure of component in \f$\mathrm{[Pa]}\f$
-     */
-    static Scalar gasViscosityForMixtures(Scalar temperature, Scalar pressure)
-    {
-        Scalar result = interpolateTP_(gasViscosity_, temperature, pressure,
-                                       pressGasIdx_, minGasPressure_, maxGasPressure_, "gas");
-        using std::isnan;
-        if (isnan(result))
-        {
-            if (!gasViscosityInitialized_)
-            {
-                auto gasVisc = [] (auto T, auto p) { return RawComponent::gasViscosity(T, p); };
-                initTPArray_(gasVisc, minGasPressure_, maxGasPressure_, gasViscosity_);
-                gasViscosityInitialized_ = true;
-                return gasViscosity(temperature, pressure);
-            }
-
-            printWarning_("gasViscosity", temperature, pressure);
-            return RawComponent::gasViscosity(temperature, pressure);
-        }
-        return result;
-    }
-
-    /*!
      * \brief The dynamic viscosity \f$\mathrm{[Pa*s]}\f$ of liquid.
      *
      * \param temperature temperature of component in \f$\mathrm{[K]}\f$

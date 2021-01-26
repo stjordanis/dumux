@@ -44,7 +44,7 @@ namespace FluidSystems {
  *        components in both the liquid and the gas phase.
  */
 template <class Scalar,
-          class H2OType = Dumux::Components::TabulatedComponent<Dumux::Components::H2O<Scalar> > >
+          class H2OType = Dumux::Components::TabulatedComponent<Dumux::Components::H2O<Scalar>, /*useGasViscosityForMixtures=*/ true > >
 class H2OHeavyOil
     : public Base<Scalar, H2OHeavyOil<Scalar, H2OType> >
 {
@@ -337,7 +337,7 @@ public:
          * -- compare e.g. with Promo Class p. 32/33
          */
         const Scalar mu[numComponents] = {
-            H2O::gasViscosityForMixtures(fluidState.temperature(phaseIdx), fluidState.pressure(phaseIdx)),
+            H2O::gasViscosity(fluidState.temperature(phaseIdx), fluidState.pressure(phaseIdx)),
             HeavyOil::gasViscosity(fluidState.temperature(phaseIdx), HeavyOil::vaporPressure(fluidState.temperature(phaseIdx)))
         };
 
