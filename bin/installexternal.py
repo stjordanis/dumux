@@ -160,7 +160,7 @@ def install_external(args):
         if 'dumux' in package:
             branch = dumux_branch
         elif 'mmesh' in package:
-            branch = "release/1.1"
+            branch = "release/1.2"
         elif 'dune' in package:
             branch = dune_branch
         elif 'opm' in package:
@@ -247,6 +247,12 @@ def install_external(args):
 
         # Change to top_dir
         os.chdir(top_dir)
+
+    # If cleanup and only logfile in the external directory, remove the directory
+    if os.path.isdir(ext_dir):
+        _, _, files = next(os.walk(ext_dir))
+        if cleanup and len(files)==1 and 'installexternal.log' in files:
+            shutil.rmtree(ext_dir)
 
     return '\n'.join(final_message)
 
