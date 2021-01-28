@@ -1,33 +1,18 @@
 #!/usr/bin/env python3
 import sys, glob, os, subprocess
+import os.path
 import argparse
 import shutil
 from distutils.dir_util import copy_tree
-import os.path
-
-"""
-This is a python script for extracting modules.
-It was originally written to solve the problem that the bash shell script could only run in a specific environment.
-So the whole design philosophy is to maximize the portability, i.e. write in a cross-platform style.
-"""
-
-########################################################################################
-####################                    FUNCTIONS                   ####################
-########################################################################################
-
-# function to show the help message
-def show_helpmesseage():
-    print("\n""USAGE: "+os.path.basename(__file__)+" module_dir FOLDER_1 [FOLDER_2 ...]\n\n"
-          "module_dir is the folder containing the DUNE module from which you\n"
-          "want to extract. The script has to be called one level above it.\n\n"
-          "The FOLDERs need to indicate subfolders of module_dir. At least one\n"
-          "of them has to contain a source file *.cc of an executable for which\n"
-          "you would like to timber a table in dumux-pub.")
-    exit(1)
-
-# function to search the header file efficiently with parallel programming
 import re
 import threading
+import fnmatch
+
+"""
+This is a python script for extracting module
+"""
+
+# function to search the header file efficiently with parallel programming
 def search_headers(c_file):
     global all_headers
     f = open(c_file,'r')
@@ -60,7 +45,6 @@ def find_all(name, path):
             result.append(os.path.join(root, name))
     return result
 
-import fnmatch
 def find(pattern, path):
     result = []
     for root, dirs, files in os.walk(path):
@@ -173,18 +157,29 @@ def generate_cmake_lists_txt_file(root_dir):
                     header_files.append(name)
         __generate_cmake_lists_txt(cmake_list_txt_file, dirs, header_files, destination)
 
-
 ########################################################################################
-####################                    PROCESS                     ####################
+####################                    Main Part                   ####################
 ########################################################################################
 
 # check if help is needed
-if (len(sys.argv) < 2):
-    show_helpmesseage()
-if (str(sys.argv[1]) == "--help" or
-    str(sys.argv[1]) == "-help" or
-    str(sys.argv[1]) == "help"):
-    show_helpmesseage()
+parser = argparse.ArgumentParser(prog='extractmodulepart',
+                                 usage= "extractmodulepart module_dir FOLDER_1 [FOLDER_2 ...]",
+                                 description='This script extracts a subfolder of a DUNE module',
+                                 formatter_class=argparse.RawDescriptionHelpFormatter,
+                                 epilog=('''
+-----------------------------------------------------------
+The script has to be called one level above module_dir.
+At least one of the subfolders (FOLDER_1 [FOLDER_2 ...]) has
+to contain a source file *.cc of an executable for which
+you would like to timber a table in dumux-pub.)'''))
+parser.add_argument('module_dir', help='Dune module from which the subfolder is extracted')
+parser.add_argument('FOLDER_1 FOLDER_2', nargs='+', help = 'subfolder(s) of module_dir which you want to extract')
+
+
+if (len(sys.argv) < 2 or str(sys.argv[1])=='--help'):
+    parser.print_help()
+    sys.exit()
+
 module_dir = str(sys.argv[1])
 
 # if module_dir contains a slash as last character, delete it
