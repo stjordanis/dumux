@@ -218,7 +218,7 @@ os.chdir("..") # back to the script folder
 
 # check if sources have been obtained
 if (all_sources == []):
-    print("ERROR: no source files *.cc found in the directories "+subfolders[0]+".")
+    print("ERROR: no source files *.cc found in the directories "+ " ".join([str(x) for x in subfolders]) +".")
     print("Be sure to provide a list of paths as arguments to this script.")
     print("Run \""+os.path.basename(__file__)+" --help\" for details.")
     exit(1)
