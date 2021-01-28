@@ -11,6 +11,29 @@ import fnmatch
 """
 This is a python script for extracting module
 """
+# require python 3
+if sys.version_info[0] < 3:
+    sys.exit("\nERROR: Python3 required")
+
+if len(sys.argv) == 1:
+    print('No options given. For more information, run the following command: \n ./extractmodulepart.py --help')
+    sys.exit()
+
+# check if help is needed
+parser = argparse.ArgumentParser(prog='extractmodulepart',
+                                 usage= "./extractmodulepart module_dir SUBFOLDER_1 [SUBFOLDER_2 ...]",
+                                 description='This script extracts a subfolder of a DUNE module',
+                                 formatter_class=argparse.RawDescriptionHelpFormatter,
+                                 epilog=('''
+-----------------------------------------------------------
+The script has to be called one level above module_dir.
+At least one of the subfolders (FOLDER_1 [FOLDER_2 ...]) has
+to contain a source file *.cc of an executable for which
+you would like to timber a table in dumux-pub.)'''))
+parser.add_argument('module_dir', help='Dune module from which the subfolder is extracted')
+parser.add_argument('subfolder', nargs='+', help = 'subfolder(s) of module_dir which you want to extract')
+
+args = vars(parser.parse_args())
 
 # function to search the header file efficiently with parallel programming
 def search_headers(c_file):
@@ -161,26 +184,8 @@ def generate_cmake_lists_txt_file(root_dir):
 ####################                    Main Part                   ####################
 ########################################################################################
 
-# check if help is needed
-parser = argparse.ArgumentParser(prog='extractmodulepart',
-                                 usage= "extractmodulepart module_dir FOLDER_1 [FOLDER_2 ...]",
-                                 description='This script extracts a subfolder of a DUNE module',
-                                 formatter_class=argparse.RawDescriptionHelpFormatter,
-                                 epilog=('''
------------------------------------------------------------
-The script has to be called one level above module_dir.
-At least one of the subfolders (FOLDER_1 [FOLDER_2 ...]) has
-to contain a source file *.cc of an executable for which
-you would like to timber a table in dumux-pub.)'''))
-parser.add_argument('module_dir', help='Dune module from which the subfolder is extracted')
-parser.add_argument('FOLDER_1 FOLDER_2', nargs='+', help = 'subfolder(s) of module_dir which you want to extract')
-
-
-if (len(sys.argv) < 2 or str(sys.argv[1])=='--help'):
-    parser.print_help()
-    sys.exit()
-
-module_dir = str(sys.argv[1])
+module_dir = args['module_dir']
+subfolders = args['subfolder']
 
 # if module_dir contains a slash as last character, delete it
 if module_dir.endswith('/'):
@@ -198,7 +203,7 @@ module_full_path=os.getcwd()
 all_sources=[]
 all_sources_with_path = []
 all_directories=[]
-for dir_path in sys.argv[2:]:
+for dir_path in subfolders:
     stripped_path = dir_path.removeprefix(module_dir)
     directories = " " + stripped_path
     all_directories.append(stripped_path)
@@ -213,7 +218,7 @@ os.chdir("..") # back to the script folder
 
 # check if sources have been obtained
 if (all_sources == []):
-    print("ERROR: no source files *.cc found in the directories "+sys.argv[2]+".")
+    print("ERROR: no source files *.cc found in the directories "+subfolders[0]+".")
     print("Be sure to provide a list of paths as arguments to this script.")
     print("Run \""+os.path.basename(__file__)+" --help\" for details.")
     exit(1)
