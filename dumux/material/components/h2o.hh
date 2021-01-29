@@ -721,22 +721,21 @@ public:
      * For water vapor as one component in mixtures, we apply two different laws
      * depending on the gas temperature.
      *
-     * For temperatures below 490 K see:
+     * For temperatures below 480 K see:
      * "Reid, R.C., Prausnitz, J.M., Poling, B.E.: The Properties of
      * Gases and Liquids (1987)"
      * Lucas corresponding states method
      * https://www.osti.gov/scitech/biblio/6504847} \cite{reid1987}
      *
-     * For temperatures above 490 K see:
+     * For temperatures above 500 K see:
      * Nagel, T. et al.: THC-Processes (2018)
      * https://doi.org/10.1007/978-3-319-68225-9_12
      *
-     * In the range 480 - 500 K, we linearize between the two laws.
+     * In the range 480 - 500 K, we interpolate between the two laws.
      */
     static Scalar gasViscosity(Scalar temperature, Scalar pressure)
     {
-
-        if constexpr(useGasViscosityForMixtures == false)
+        if constexpr (!useGasViscosityForMixtures)
         {
             // viscosity according to IAPWS
             Region2::checkValidityRange(temperature, pressure, "Viscosity");
@@ -744,71 +743,20 @@ public:
             Scalar rho = gasDensity(temperature, pressure);
             return Common::viscosity(temperature, rho);
         }
-
-        else
+        else if (temperature < 480.0)
         {
-            // viscosity according to Reid, R.C.
-            if(temperature < 480.0){
+            return viscosityReid_(temperature);
+        }
+        else if (temperature > 500.0)
+        {
+            return viscosityNagel_(temperature);
+        }
+        else // interpolate
+        {
+            Scalar op = (500.0 - temperature)/20.0;
 
-                Scalar Tc = 647.3; // [K]
-    //          Scalar Pc = 221.2; // [bar]
-    //          Scalar Zc = 0.231;
-    //          Scalar M = 18.015; // [g/mol]
-                Scalar Tr = temperature/Tc;
-
-                //Regularization
-                if(Tr<1e-8) Tr=1e-8;
-
-    //          Scalar mu_r = 0.0897; // polarity factor
-                Scalar Fp0 = 1. + 0.221*(0.96+0.1*(Tr-0.7));
-                Scalar xi = 3.334E-3;
-                Scalar eta_xi = (0.807*pow(Tr,0.618) - 0.357*exp((-0.449)*Tr)
-                                + 0.34*exp((-4.058)*Tr) + 0.018) * Fp0;
-                Scalar viscosity = eta_xi/xi; // [1.E-6 Pa]
-                return  viscosity/1.e7;
-            }
-
-            // viscosity according to ANSYSFluent \cite{nagel2018}
-            if(temperature > 500.0){
-                Scalar a1 = -4.4189440e-6;
-                Scalar a2 = 4.6876380e-8;
-                Scalar a3 = -5.3894310e-12;
-                Scalar a4 = 3.2028560e-16;
-                Scalar a5 = 4.9191790e-22;
-
-                Scalar viscosity = 0.0;
-                viscosity = a1 + a2*temperature + a3*temperature*temperature
-                            + a4*temperature*temperature*temperature
-                            + a5*temperature*temperature*temperature*temperature;
-
-                return viscosity;
-            }
-
-            // linearization
-            if(temperature >= 480 && temperature <= 500.0){
-                Scalar op = (temperature - 20) / 20;
-
-                Scalar Tc = 647.3; // [K]
-                Scalar Tr = temperature/Tc;
-                if(Tr<1e-8) Tr=1e-8;
-                Scalar Fp0 = 1. + 0.221*(0.96+0.1*(Tr-0.7));
-                Scalar xi = 3.334E-3;
-                Scalar eta_xi = (0.807*pow(Tr,0.618) - 0.357*exp((-0.449)*Tr)
-                                + 0.34*exp((-4.058)*Tr) + 0.018) * Fp0;
-                Scalar viscosityM = eta_xi/xi; // [1.E-6 Pa]
-
-                Scalar a1 = -4.4189440e-6;
-                Scalar a2 = 4.6876380e-8;
-                Scalar a3 = -5.3894310e-12;
-                Scalar a4 = 3.2028560e-16;
-                Scalar a5 = 4.9191790e-22;
-
-                Scalar viscosityA  = a1 + a2*temperature + a3*temperature*temperature
-                            + a4*temperature*temperature*temperature
-                            + a5*temperature*temperature*temperature*temperature;
-
-                return viscosityM*op + viscosityA*(1-op);
-            }
+            return op*viscosityReid_(temperature)
+                   + (1.0 - op)*viscosityNagel_(temperature);
         }
     }
 
@@ -995,7 +943,39 @@ private:
             Region2::dGamma_dPi(temperature, pressure) *
             Rs * temperature / pressure;
     }
-}; // end class
+
+    // viscosity according to Reid, R.C.
+    static Scalar viscosityReid_(Scalar temperature)
+    {
+        Scalar tc = 647.3;
+        Scalar tr = temperature/tc;
+
+        // regularization
+        using std::max;
+        tr = max(tr, 1e-8);
+
+        Scalar fp0 = 1.0 + 0.221*(0.96 + 0.1*(tr - 0.7));
+        Scalar xi = 3.334e-3;
+        Scalar eta_xi = (0.807*pow(tr, 0.618) - 0.357*exp((-0.449)*tr)
+                         + 0.34*exp((-4.058)*tr) + 0.018)*fp0;
+
+        return 1.0e-7*eta_xi/xi;
+    }
+
+    // viscosity according to Nagel, T. et al.
+    static Scalar viscosityNagel_(Scalar temperature)
+    {
+        const Scalar a1 = -4.4189440e-6;
+        const Scalar a2 = 4.6876380e-8;
+        const Scalar a3 = -5.3894310e-12;
+        const Scalar a4 = 3.2028560e-16;
+        const Scalar a5 = 4.9191790e-22;
+
+        return a1 + a2*temperature + a3*temperature*temperature
+                  + a4*temperature*temperature*temperature
+                  + a5*temperature*temperature*temperature*temperature;
+    }
+};
 
 template <class Scalar>
 struct IsAqueous<H2O<Scalar>> : public std::true_type {};
