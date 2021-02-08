@@ -77,7 +77,7 @@ template<class TypeTag>
 struct FluidSystem<TypeTag, TTag::Salinization>
 {
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using type = FluidSystems::BrineAir<Scalar, Components::H2O<Scalar,/*useGasViscosityForMixtures=*/ true>>;
+    using type = FluidSystems::BrineAir<Scalar, Components::H2O<Scalar>>;
 };
 
 template<class TypeTag>

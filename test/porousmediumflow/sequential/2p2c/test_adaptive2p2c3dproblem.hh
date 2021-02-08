@@ -79,7 +79,7 @@ template<class TypeTag>
 struct FluidSystem<TypeTag, TTag::Adaptive2p2c3d>
 {
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using type = FluidSystems::H2OAir<Scalar, Components::H2O<Scalar,/*useGasViscosityForMixtures=*/ true>, FluidSystems::H2OAirDefaultPolicy</*fastButSimplifiedRelations=*/true>>;
+    using type = FluidSystems::H2OAir<Scalar, Components::H2O<Scalar>, FluidSystems::H2OAirDefaultPolicy</*fastButSimplifiedRelations=*/true>>;
 };
 
 // Specify indicator

@@ -66,7 +66,7 @@ struct H2OAirDefaultPolicy
  * default with the tabulated version of water of the IAPWS-formulation.
  */
 template <class Scalar,
-          class H2Otype = Components::TabulatedComponent<Components::H2O<Scalar, /*useGasViscosityForMixtures=*/ true> >,
+          class H2Otype = Components::TabulatedComponent<Components::H2O<Scalar> >,
           class Policy = H2OAirDefaultPolicy<>,
           bool useKelvinVaporPressure = false>
 class H2OAir
@@ -481,7 +481,7 @@ public:
                 // Wilke method (Reid et al.):
                 Scalar muResult = 0;
                 const Scalar mu[numComponents] = {
-                    H2O::gasViscosity(T, p),
+                    h2oGasViscosityInMixture(T, p),
                     Air::gasViscosity(T, p)
                 };
 
