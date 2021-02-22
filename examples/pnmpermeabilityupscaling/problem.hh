@@ -143,7 +143,7 @@ public:
         return liquidDensity;
     }
 
-    // Return the liquid dynamic viscosity-
+    // Return the liquid dynamic viscosity.
     Scalar liquidDynamicViscosity() const
     {
         static const Scalar liquidDynamicViscosity = getParam<Scalar>("Component.LiquidKinematicViscosity") * liquidDensity();

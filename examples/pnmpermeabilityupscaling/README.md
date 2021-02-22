@@ -5,17 +5,18 @@
 __In this example, you will learn how to__
 
 * simulate flow on a pore network by applying a pressure gradient in a given direction
-* perform an upscaling in order to determine the intrinsic single-phase permeability K [m$`^2`$]
+* perform an upscaling in order to determine the intrinsic single-phase permeability $`\mathbf{K}`$ [m$`^2`$]
 
 
 __Result__.
-As a result of the simulation of this example, you will get the intrinsic single-phase permeabilities for each spatial direction K$`_x`$, K$`_y`$, K$`_z`$ [m$`^2`$]
-as direct output into your terminal.
-Additionally, the output contains the values of the auxiliary parameters: cross-sectional area, mass flux integrated over the cross-sectional area, and the resulting Darcy velocity as in the example below for the x-direction permeability K$`_x`$:
+As a result of the simulation of this example, you will get the intrinsic single-phase permeabilities for each spatial direction $`K_{xx}`$, $`K_{yy}`$, $`K_{zz}`$ [m$`^2`$]
+as direct output on your terminal.
+Additionally, the output contains the values of the auxiliary parameters: cross-sectional area, mass flux integrated over the cross-sectional area,
+and the resulting Darcy velocity as in the example below for the x-direction permeability $`K_{xx}`$:
 
 ```
 
-x-direction: Area = 1.600000e-07 m^2; Massflux = 5.296954e-13 kg/s; v_Darcy = 3.310596e-09 m/s; K = 3.310596e-13 m^2
+x-direction: Area = 1.600000e-07 m^2; Massflux = 4.509338e-13 kg/s; v_Darcy = 2.818337e-09 m/s; K = 2.818337e-13 m^2
 
 ```
 
@@ -36,16 +37,10 @@ __Table of contents__. This description is structured as follows:
 
 ## Problem setup
 
-We consider a single-phase problem within a randomly generated pore network of 20 pores cubed. Note that some pores have been deleted.
-To calculate the upscaled permeability, a pressure difference of 4000 Pa is applied sequentially in every direction
-and the upscaled Darcy permeability is calculated.
-Figure 2 illustrates the setup, showing additionally the individual pore throat transmissibilities:
-<figure>
-    <center>
-        <img src="img/setup.png" alt="Pore-network: throat transmissibilities" width="60%"/>
-        <figcaption> <b> Fig.2 </b> - Pore-throat transmissibilities distribution within the pore network. </figcaption>
-    </center>
-</figure>
+We consider a single-phase problem within a randomly generated pore network of 20x20x20 pores cubed from which some of the pore throats were [deleted randomly](https://doi.org/10.1029/2010WR010180).
+The inscribed pore body radii follow a truncated log-normal distribution.
+To calculate the upscaled permeability, a pressure difference of 4000 Pa is applied sequentially in every direction, while all lateral sides are closed.
+The resulting mass flow rate is then used  to determine K, as described later.
 
 ## Mathematical and numerical model
 
@@ -55,7 +50,7 @@ We require mass conservation at each pore body $`i`$:
 ```math
  \sum_j Q_{ij} = 0,
 ```
-where $Q_{ij}$ is the discrete volume flow rate in a throat connecting pore bodies $`i`$ and $`j`$:
+where $`Q_{ij}``$ is the discrete volume flow rate in a throat connecting pore bodies $`i`$ and $`j`$:
 
 ```math
  Q_{ij} = g_{ij} (p_i - p_j).

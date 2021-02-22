@@ -6,9 +6,9 @@
 
 # Part 2: Main program flow
 
-We want to solve the flow through a network of a 20 pores cubed in x-, y-, and z-direction
-to determine the upscaled permeabilities in each direction.
 The main program flow is implemented in file `main.cc` described below.
+For each spatial direction x, y and z, flow through the network is simulated and the resulting mass flow rate
+is used to determine the permeability.
 
 The code documentation is structured as follows:
 
@@ -71,7 +71,7 @@ int main(int argc, char** argv) try
 
 ```cpp
     // The grid manager can be used to create a grid from the input file
-    using GridManager = Dumux::PoreNetworkGridManager<3>;
+    using GridManager = PoreNetwork::GridManager<3>;
     GridManager gridManager;
     gridManager.init();
 
@@ -107,11 +107,12 @@ int main(int argc, char** argv) try
 
 ```cpp
     using VtkOutputFields = GetPropType<TypeTag, Properties::IOFields>;
-    PNMVtkOutputModule<TypeTag> vtkWriter(*gridVariables, x, problem->name());
+    using VtkWriter = PoreNetwork::VtkOutputModule<GridVariables, GetPropType<TypeTag, Properties::FluxVariables>, SolutionVector>;
+    VtkWriter vtkWriter(*gridVariables, x, problem->name());
     VtkOutputFields::initOutputModule(vtkWriter);
-    vtkWriter.addField(gridGeometry->poreVolume(), "poreVolume", PNMVtkOutputModule<TypeTag>::FieldType::vertex);
-    vtkWriter.addField(gridGeometry->throatShapeFactor(), "throatShapeFactor", PNMVtkOutputModule<TypeTag>::FieldType::element);
-    vtkWriter.addField(gridGeometry->throatCrossSectionalArea(), "throatCrossSectionalArea", PNMVtkOutputModule<TypeTag>::FieldType::element);
+    vtkWriter.addField(gridGeometry->poreVolume(), "poreVolume", VtkWriter::FieldType::vertex);
+    vtkWriter.addField(gridGeometry->throatShapeFactor(), "throatShapeFactor", VtkWriter::FieldType::element);
+    vtkWriter.addField(gridGeometry->throatCrossSectionalArea(), "throatCrossSectionalArea", VtkWriter::FieldType::element);
 ```
 
 ### Instantiate the solver
@@ -144,7 +145,7 @@ Specify the directions for which the permeability shall be determined (default: 
 Set up a helper class to determine the total mass flux leaving the network
 
 ```cpp
-    const auto boundaryFlux = PoreNetworkModelBoundaryFlux(*gridVariables, assembler->localResidual(), x);
+    const auto boundaryFlux = PoreNetwork::BoundaryFlux(*gridVariables, assembler->localResidual(), x);
 ```
 
 Set the side lengths used for applying the pressure gradient and calculating the REV outflow area.
@@ -196,7 +197,7 @@ and finally determine the permeability.
         if (!referenceData.empty())
         {
             static const Scalar eps = getParam<Scalar>("Problem.TestEpsilon");
-            if (Dune::FloatCmp::ne<Scalar>(K, referenceData[dimIdx]), eps)
+            if (Dune::FloatCmp::ne<Scalar>(K, referenceData[dimIdx], eps))
             {
                 std::cerr << "Calculated permeability of " << K << " does not match with reference value of " << referenceData[dimIdx] << std::endl;
                 return 1;
@@ -244,4 +245,3 @@ catch (const Dune::Exception &e)
 
 | [:arrow_left: Back to the main documentation](../README.md) | [:arrow_left: Go back to part 1](problem.md) | [:arrow_right: Continue with part 3](upscalinghelper.md) |
 |---|---|---:|
-

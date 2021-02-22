@@ -1,8 +1,8 @@
 # Part 2: Main program flow
 
-We want to solve the flow through a network of a 20 pores cubed in x-, y-, and z-direction
-to determine the upscaled permeabilities in each direction.
 The main program flow is implemented in file `main.cc` described below.
+For each spatial direction x, y and z, flow through the network is simulated and the resulting mass flow rate
+is used to determine the permeability.
 
 The code documentation is structured as follows:
 

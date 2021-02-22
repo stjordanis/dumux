@@ -9,10 +9,15 @@ Epsilon = 1e-3
 UpperRight = 4e-4 4e-4 4e-4
 NumPores = 20 20 20
 
-PoreRadius = 1e-5
+ParameterType = lognormal
+MeanPoreRadius = 1e-5
+StandardDeviationPoreRadius = 4e-6
 PoreGeometry = Sphere
 ThroatCrossSectionShape = Square
-ThroatRadius = 5e-6
+
+# PoreRadius = 1e-5
+# PoreGeometry = Sphere
+# ThroatRadius = 5e-6
 
 BoundaryFaceMarker = 1 2 3 4 5 6
 MinThroatLength = 1e-10

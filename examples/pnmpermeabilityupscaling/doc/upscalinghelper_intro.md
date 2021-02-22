@@ -1,6 +1,6 @@
 # Part 3: Upscaling helper
 
-The upscaling helper evaluates for each direction the pore-network simulation results and calculates the upscaled instrinsic permeability in this direction using:
+The upscaling helper evaluates the pore-network simulation results for each direction and calculates the upscaled instrinsic permeability in this direction using:
 
 ```math
  K = v_\mathrm{Darcy} / \nabla p ~ \mu.

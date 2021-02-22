@@ -98,7 +98,7 @@ private:
     using GridGeometry = GetPropType<TypeTag, Properties::GridGeometry>;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
 public:
-    using type = UpscalingSpatialParams<GridGeometry, Scalar>;
+    using type = Dumux::PoreNetwork::UpscalingSpatialParams<GridGeometry, Scalar>;
 };
 
 //! The advection type
@@ -107,9 +107,9 @@ struct AdvectionType<TypeTag, TTag::PNMUpscaling>
 {
 private:
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using TransmissibilityLaw = TransmissibilityPatzekSilin<Scalar, true/*considerPoreBodyResistance*/>;
+    using TransmissibilityLaw = Dumux::PoreNetwork::TransmissibilityPatzekSilin<Scalar, true/*considerPoreBodyResistance*/>;
 public:
-    using type = Dumux::PoreNetworkCreepingFlow<Scalar, TransmissibilityLaw>;
+    using type = Dumux::PoreNetwork::CreepingFlow<Scalar, TransmissibilityLaw>;
 };
 
 // We use a single liquid phase consisting of a component with constant fluid properties.
@@ -282,7 +282,7 @@ and the length of the domain at the inlet.
         return liquidDensity;
     }
 
-    // Return the liquid dynamic viscosity-
+    // Return the liquid dynamic viscosity.
     Scalar liquidDynamicViscosity() const
     {
         static const Scalar liquidDynamicViscosity = getParam<Scalar>("Component.LiquidKinematicViscosity") * liquidDensity();
