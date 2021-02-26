@@ -31,7 +31,7 @@
 #include <dune/grid/io/file/vtk.hh>
 #include <dune/istl/io.hh>
 
-#include "problem.hh"
+#include "properties.hh"
 
 #include <dumux/common/properties.hh>
 #include <dumux/common/parameters.hh>
