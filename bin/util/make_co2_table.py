@@ -5,9 +5,7 @@ and Techlology) Standard Reference Database Number 69
 (https://doi.org/10.18434/T4D303).
 
 Copyright for NIST Standard Reference Data is governed by the Standard
-Reference Data Act (https://www.nist.gov/srd/public-law). Make sure to use
-this script in accordance with the Standard Reference Data Act.
-the SRDA.
+Reference Data Act (https://www.nist.gov/srd/public-law).
 
 The values are calculated using the equation of Span and Wagner """
 
@@ -17,67 +15,78 @@ import numpy as np
 from io import StringIO
 from string import Template
 
-# TODO: Shall the min and max values be included in the table?
-# TODO: Is NUM_STEPS the number of samples or the really number of steps?
-# TODO: Check why the values differ from the reference values!
-# TODO: Shall I better use a class
 
-NUM_TEMP_STEPS = 50
-MIN_TEMP = 2.900000000000000e+02  # K
-MAX_TEMP = 3.400000000000000e+02  # K
-NUM_PRESS_STEPS = 495
-MIN_PRESS = 1.000000000000000e+05  # Pa
-MAX_PRESS = 1.000000000000000e+08  # Pa
+MIN_TEMP = 290  # K
+MAX_TEMP = 340  # K
+NUM_TEMP_SAMPLES = 50 # MIN_TEMP ist the first sample point, MAX_TEMP the last.
+MIN_PRESS = 1.0e+05  # Pa
+MAX_PRESS = 1.0e+08  # Pa
+NUM_PRESS_SAMPLES = 495 # MIN_PRESS ist the first sample point, MAX_PRESS the last.
 
-
+# TODO: improve remove this function
 def formate_values(values):
     text = '    {\n       '
     for i, value in enumerate(values):
         if i == len(values)-1:
-            text += '     ' + format(value, '.15e') + '\n    },\n'
+            text += '     ' + format(value, '.12e') + '\n    },\n'
             return text
-        text += '     ' + format(value, '.15e') + ','
+        text += '     ' + format(value, '.12e') + ','
         if (i + 1) % 5 == 0:
             text += ' \n       '
 
 
-delta_temperature = (MAX_TEMP - MIN_TEMP) / (NUM_TEMP_STEPS - 1)
-delta_pressure = (MAX_PRESS - MIN_PRESS) / (NUM_PRESS_STEPS - 1)
+delta_temperature = (MAX_TEMP - MIN_TEMP) / (NUM_TEMP_SAMPLES - 1)
+delta_pressure = (MAX_PRESS - MIN_PRESS) / (NUM_PRESS_SAMPLES - 1)
 
 density_vals = ''
 enthalpy_vals = ''
 
 # get the data
-for i in range(NUM_TEMP_STEPS):
+for i in range(NUM_TEMP_SAMPLES):
     temperature = MIN_TEMP + i * delta_temperature
-    query = {'Action': 'Data', 'Wide': 'on', 'ID': 'C7732185', 'Type': 'IsoTherm',
-             'Digits': '5', 'PLow': str(MIN_PRESS), 'PHigh': str(MAX_PRESS),
+    query = {'Action': 'Data', 'Wide': 'on', 'ID': 'C124389', 'Type': 'IsoTherm',
+             'Digits': '12', 'PLow': str(MIN_PRESS), 'PHigh': str(MAX_PRESS),
              'PInc': str(delta_pressure), 'T': str(temperature), 'RefState': 'DEF',
-             'TUnit': 'K', 'PUnit': 'Pa', 'DUnit': 'mol/l', 'HUnit': 'kJ/mol',
+             'TUnit': 'K', 'PUnit': 'Pa', 'DUnit': 'kg/m3', 'HUnit': 'kJ/kg',
              'WUnit': 'm/s', 'VisUnit': 'uPas', 'STUnit': 'N/m'}
     response = requests.get('https://webbook.nist.gov/cgi/fluid.cgi?'
                             + urllib.parse.urlencode(query))
     response.encoding = 'utf-8'
     text = response.text
-    raw_data = StringIO(text)
-    values = np.genfromtxt(raw_data, delimiter='\t', names=True)
+    phase = np.genfromtxt(StringIO(text), delimiter='\t', dtype=str, usecols=[-1],
+                          skip_header=1)
+    values = np.genfromtxt(StringIO(text), delimiter='\t', names=True)
 
-# formate the data
-    density_vals += formate_values(values["Density_moll"])
-    enthalpy_vals += formate_values(values["Enthalpy_kJmol"])
+# TODO: Decide how to deal with the transition points, which are additionally
+#       to the other sampling points provided by NIST. WARNING: The implemented
+#       removing of the transition point does not work if there are two
+#       transition point within the data range.
 
+# find the phase transition
+    values_red = np.copy(values)
+    for i in range(1, len(phase)-1):
+        if phase[i] != phase[i+1]:
+            # remove the phase transition
+            density_red = np.concatenate((values["Density_kgm3"][:i], values["Density_kgm3"][i+2:]))
+            enthalpy_red = np.concatenate((values["Enthalpy_kJkg"][:i], values["Enthalpy_kJkg"][i+2:]))
+            # formate the data
+            density_vals += formate_values(density_red)
+            enthalpy_vals += formate_values(enthalpy_red)
+            break
+
+# TODO get rid of the next two lines, by improving/removing formate_values()
 density_vals = density_vals[:-2]
 enthalpy_vals = enthalpy_vals[:-2]
 
 # write the table by filling the gaps in the template
 f = open("co2values_template.inc", 'r')
 template = Template(f.read())
-replacements = {"NUM_TEMP_STEPS": format(NUM_TEMP_STEPS),
-                "MIN_TEMP": format(MIN_TEMP, '.15e'),
-                "MAX_TEMP": format(MAX_TEMP, '.15e'),
-                "NUM_PRESS_STEPS": format(NUM_PRESS_STEPS),
-                "MIN_PRESS": format(MIN_PRESS, '.15e'),
-                "MAX_PRESS": format(MAX_PRESS, '.15e'),
+replacements = {"MIN_TEMP": format(MIN_TEMP),
+                "MAX_TEMP": format(MAX_TEMP),
+                "NUM_TEMP_SAMPLES": format(NUM_TEMP_SAMPLES),
+                "MIN_PRESS": format(MIN_PRESS),
+                "MAX_PRESS": format(MAX_PRESS),
+                "NUM_PRESS_SAMPLES": format(NUM_PRESS_SAMPLES),
                 "DENSITY_VALS": density_vals,
                 "ENTHALPY_VALS": enthalpy_vals}
 text_output = template.substitute(replacements)
