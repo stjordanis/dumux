@@ -46,8 +46,8 @@
 #include <dumux/io/vtkoutputmodule.hh>
 #include <dumux/io/grid/gridmanager.hh>
 
-// the problem definitions
-#include "problem.hh"
+// the properties and problem definitions
+#include "properties.hh"
 
 int main(int argc, char** argv)
 {
