@@ -22,7 +22,7 @@
  * \brief Test for the 3pni CC model.
  */
 #include <config.h>
-#include "problem.hh"
+#include "properties.hh"
 #include <ctime>
 #include <iostream>
 
