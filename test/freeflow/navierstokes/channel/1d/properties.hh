@@ -18,57 +18,53 @@
  *****************************************************************************/
 /*!
  * \file
- * \ingroup ShallowWaterTests
- * \brief The properties for the shallow water bowl test
+ * \ingroup NavierStokesTests
+ * \brief The properties of the test for the 1-D Navier-Stokes model with an analytical solution.
  */
-#ifndef DUMUX_BOWL_TEST_PROPERTIES_HH
-#define DUMUX_BOWL_TEST_PROPERTIES_HH
+#ifndef DUMUX_DONEA_TEST_PROPERTIES_HH
+#define DUMUX_DONEA_TEST_PROPERTIES_HH
 
+#include <dune/common/fmatrix.hh>
 #include <dune/grid/yaspgrid.hh>
-#include <dumux/discretization/cctpfa.hh>
-#include <dumux/common/properties.hh>
-#include <dumux/freeflow/shallowwater/model.hh>
+#include <dumux/discretization/staggered/freeflow/properties.hh>
 
-#include "spatialparams.hh"
+#include <dumux/freeflow/navierstokes/model.hh>
+#include <dumux/material/components/constant.hh>
+#include <dumux/material/fluidsystems/1pliquid.hh>
+
 #include "problem.hh"
-
 namespace Dumux::Properties {
-
 // Create new type tags
 namespace TTag {
-struct Bowl { using InheritsFrom = std::tuple<ShallowWater, CCTpfaModel>; };
+struct NavierStokesAnalytic { using InheritsFrom = std::tuple<NavierStokes, StaggeredFreeFlowModel>; };
 } // end namespace TTag
 
+// the fluid system
 template<class TypeTag>
-struct Grid<TypeTag, TTag::Bowl>
-{ using type = Dune::YaspGrid<2, Dune::TensorProductCoordinates<GetPropType<TypeTag, Properties::Scalar>, 2> >; };
+struct FluidSystem<TypeTag, TTag::NavierStokesAnalytic>
+{
+    using Scalar = GetPropType<TypeTag, Properties::Scalar>;
+    using type = FluidSystems::OnePLiquid<Scalar, Components::Constant<1, Scalar> >;
+};
+
+// Set the grid type
+template<class TypeTag>
+struct Grid<TypeTag, TTag::NavierStokesAnalytic> { using type = Dune::YaspGrid<1>; };
 
 // Set the problem property
 template<class TypeTag>
-struct Problem<TypeTag, TTag::Bowl>
-{ using type = Dumux::BowlProblem<TypeTag>; };
-
-// Set the spatial parameters
-template<class TypeTag>
-struct SpatialParams<TypeTag, TTag::Bowl>
-{
-private:
-    using GridGeometry = GetPropType<TypeTag, Properties::GridGeometry>;
-    using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using ElementVolumeVariables = typename GetPropType<TypeTag, Properties::GridVolumeVariables>::LocalView;
-    using VolumeVariables = typename ElementVolumeVariables::VolumeVariables;
-public:
-    using type = BowlSpatialParams<GridGeometry, Scalar, VolumeVariables>;
-};
+struct Problem<TypeTag, TTag::NavierStokesAnalytic> { using type = Dumux::NavierStokesAnalyticProblem<TypeTag> ; };
 
 template<class TypeTag>
-struct EnableGridGeometryCache<TypeTag, TTag::Bowl>
-{ static constexpr bool value = true; };
+struct EnableGridGeometryCache<TypeTag, TTag::NavierStokesAnalytic> { static constexpr bool value = true; };
 
 template<class TypeTag>
-struct EnableGridVolumeVariablesCache<TypeTag, TTag::Bowl>
-{ static constexpr bool value = false; };
+struct EnableGridFluxVariablesCache<TypeTag, TTag::NavierStokesAnalytic> { static constexpr bool value = true; };
+template<class TypeTag>
+struct EnableGridVolumeVariablesCache<TypeTag, TTag::NavierStokesAnalytic> { static constexpr bool value = true; };
 
+template<class TypeTag>
+struct NormalizePressure<TypeTag, TTag::NavierStokesAnalytic> { static constexpr bool value = false; };
 } // end namespace Dumux::Properties
 
 #endif

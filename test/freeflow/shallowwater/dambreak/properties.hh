@@ -19,54 +19,55 @@
 /*!
  * \file
  * \ingroup ShallowWaterTests
- * \brief The properties for the shallow water bowl test
+ * \brief The properties of the test for the Shallow water model (wet dam break).
  */
-#ifndef DUMUX_BOWL_TEST_PROPERTIES_HH
-#define DUMUX_BOWL_TEST_PROPERTIES_HH
+#ifndef DUMUX_DAM_BREAK_TEST_PROPERTIES_HH
+#define DUMUX_DAM_BREAK_TEST_PROPERTIES_HH
 
 #include <dune/grid/yaspgrid.hh>
 #include <dumux/discretization/cctpfa.hh>
-#include <dumux/common/properties.hh>
+#include "spatialparams.hh"
 #include <dumux/freeflow/shallowwater/model.hh>
 
-#include "spatialparams.hh"
 #include "problem.hh"
 
 namespace Dumux::Properties {
 
 // Create new type tags
 namespace TTag {
-struct Bowl { using InheritsFrom = std::tuple<ShallowWater, CCTpfaModel>; };
+struct DamBreakWet { using InheritsFrom = std::tuple<ShallowWater, CCTpfaModel>; };
 } // end namespace TTag
 
 template<class TypeTag>
-struct Grid<TypeTag, TTag::Bowl>
+struct Grid<TypeTag, TTag::DamBreakWet>
 { using type = Dune::YaspGrid<2, Dune::TensorProductCoordinates<GetPropType<TypeTag, Properties::Scalar>, 2> >; };
 
 // Set the problem property
 template<class TypeTag>
-struct Problem<TypeTag, TTag::Bowl>
-{ using type = Dumux::BowlProblem<TypeTag>; };
+struct Problem<TypeTag, TTag::DamBreakWet>
+{ using type = Dumux::DamBreakProblem<TypeTag>; };
 
 // Set the spatial parameters
 template<class TypeTag>
-struct SpatialParams<TypeTag, TTag::Bowl>
+struct SpatialParams<TypeTag, TTag::DamBreakWet>
 {
 private:
     using GridGeometry = GetPropType<TypeTag, Properties::GridGeometry>;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using ElementVolumeVariables = typename GetPropType<TypeTag, Properties::GridVolumeVariables>::LocalView;
-    using VolumeVariables = typename ElementVolumeVariables::VolumeVariables;
 public:
-    using type = BowlSpatialParams<GridGeometry, Scalar, VolumeVariables>;
+    using type = DamBreakSpatialParams<GridGeometry, Scalar>;
 };
 
 template<class TypeTag>
-struct EnableGridGeometryCache<TypeTag, TTag::Bowl>
+struct EnableGridGeometryCache<TypeTag, TTag::DamBreakWet>
 { static constexpr bool value = true; };
 
 template<class TypeTag>
-struct EnableGridVolumeVariablesCache<TypeTag, TTag::Bowl>
+struct EnableGridVolumeVariablesCache<TypeTag, TTag::DamBreakWet>
+{ static constexpr bool value = false; };
+
+template<class TypeTag>
+struct EnableGridFluxVariablesCache<TypeTag, TTag::DamBreakWet>
 { static constexpr bool value = false; };
 
 } // end namespace Dumux::Properties

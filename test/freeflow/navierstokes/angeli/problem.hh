@@ -26,55 +26,14 @@
 #ifndef DUMUX_ANGELI_TEST_PROBLEM_HH
 #define DUMUX_ANGELI_TEST_PROBLEM_HH
 
-#include <dune/grid/yaspgrid.hh>
-
-#include <dumux/discretization/staggered/freeflow/properties.hh>
-
+#include <dumux/common/properties.hh>
+#include <dumux/common/timeloop.hh>
 #include <dumux/freeflow/navierstokes/boundarytypes.hh>
-#include <dumux/freeflow/navierstokes/model.hh>
 #include <dumux/freeflow/navierstokes/problem.hh>
-
-#include <dumux/material/components/constant.hh>
-#include <dumux/material/fluidsystems/1pliquid.hh>
 
 #include "../l2error.hh"
 
 namespace Dumux {
-template <class TypeTag>
-class AngeliTestProblem;
-
-namespace Properties {
-// Create new type tags
-namespace TTag {
-struct AngeliTest { using InheritsFrom = std::tuple<NavierStokes, StaggeredFreeFlowModel>; };
-} // end namespace TTag
-
-// the fluid system
-template<class TypeTag>
-struct FluidSystem<TypeTag, TTag::AngeliTest>
-{
-private:
-    using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-public:
-    using type = FluidSystems::OnePLiquid<Scalar, Components::Constant<1, Scalar> >;
-};
-
-// Set the grid type
-template<class TypeTag>
-struct Grid<TypeTag, TTag::AngeliTest> { using type = Dune::YaspGrid<2, Dune::EquidistantOffsetCoordinates<GetPropType<TypeTag, Properties::Scalar>, 2> >; };
-
-// Set the problem property
-template<class TypeTag>
-struct Problem<TypeTag, TTag::AngeliTest> { using type = Dumux::AngeliTestProblem<TypeTag> ; };
-
-template<class TypeTag>
-struct EnableGridGeometryCache<TypeTag, TTag::AngeliTest> { static constexpr bool value = true; };
-
-template<class TypeTag>
-struct EnableGridFluxVariablesCache<TypeTag, TTag::AngeliTest> { static constexpr bool value = true; };
-template<class TypeTag>
-struct EnableGridVolumeVariablesCache<TypeTag, TTag::AngeliTest> { static constexpr bool value = true; };
-} // end namespace Properties
 
 /*!
  * \ingroup NavierStokesTests
