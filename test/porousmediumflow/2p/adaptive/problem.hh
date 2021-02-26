@@ -25,10 +25,8 @@
 
 #ifndef DUMUX_LENSPROBLEM_ADAPTIVE_HH
 #define DUMUX_LENSPROBLEM_ADAPTIVE_HH
-
-#include "../incompressible/problem.hh"
-
 #include <dumux/io/container.hh>
+#include "../incompressible/problem.hh"
 
 namespace Dumux {
 
