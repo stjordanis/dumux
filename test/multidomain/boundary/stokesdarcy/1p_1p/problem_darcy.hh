@@ -43,36 +43,6 @@ namespace Dumux {
 template <class TypeTag>
 class DarcySubProblem;
 
-namespace Properties {
-// Create new type tags
-namespace TTag {
-struct DarcyOneP { using InheritsFrom = std::tuple<OneP, CCTpfaModel>; };
-} // end namespace TTag
-
-// Set the problem property
-template<class TypeTag>
-struct Problem<TypeTag, TTag::DarcyOneP> { using type = Dumux::DarcySubProblem<TypeTag>; };
-
-// the fluid system
-template<class TypeTag>
-struct FluidSystem<TypeTag, TTag::DarcyOneP>
-{
-    using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using type = FluidSystems::OnePLiquid<Scalar, Dumux::Components::SimpleH2O<Scalar> > ;
-};
-
-// Set the grid type
-template<class TypeTag>
-struct Grid<TypeTag, TTag::DarcyOneP> { using type = Dune::YaspGrid<2>; };
-
-template<class TypeTag>
-struct SpatialParams<TypeTag, TTag::DarcyOneP>
-{
-    using GridGeometry = GetPropType<TypeTag, Properties::GridGeometry>;
-    using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using type = OnePSpatialParams<GridGeometry, Scalar>;
-};
-} // end namespace Properties
 
 template <class TypeTag>
 class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>

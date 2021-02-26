@@ -49,8 +49,8 @@
 #include <dumux/multidomain/newtonsolver.hh>
 #include <dumux/multidomain/embedded/couplingmanager2d3d.hh>
 
-#include "problem_matrix.hh"
-#include "problem_fracture.hh"
+#include "properties_matrix.hh"
+#include "properties_fracture.hh"
 
 namespace Dumux {
 namespace Properties {

@@ -29,8 +29,8 @@
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/geometry/quadraturerules.hh>
 
-#include "problem_bulk.hh"
-#include "problem_lowdim.hh"
+#include "properties_bulk.hh"
+#include "properties_lowdim.hh"
 
 #include <dumux/common/properties.hh>
 #include <dumux/common/parameters.hh>

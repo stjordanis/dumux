@@ -51,8 +51,7 @@
 
 #include <dumux/multidomain/boundary/stokesdarcy/couplingmanager.hh>
 
-#include "problem_darcy.hh"
-#include "problem_stokes.hh"
+#include "properties.hh"
 
 namespace Dumux {
 namespace Properties {

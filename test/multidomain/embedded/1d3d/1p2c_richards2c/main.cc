@@ -48,8 +48,8 @@
 #include <dumux/multidomain/embedded/couplingmanager1d3d.hh>
 #include <dumux/multidomain/glue.hh>
 
-#include "problem_root.hh"
-#include "problem_soil.hh"
+#include "properties_root.hh"
+#include "properties_soil.hh"
 
 namespace Dumux {
 namespace Properties {

@@ -32,9 +32,9 @@
 #include <dumux/common/parameters.hh>
 #include <dumux/common/dumuxmessage.hh>
 
-#include "problem_bulk.hh"
-#include "problem_facet.hh"
-#include "problem_edge.hh"
+#include "properties_bulk.hh"
+#include "properties_facet.hh"
+#include "properties_edge.hh"
 
 #include <dumux/assembly/diffmethod.hh>
 
