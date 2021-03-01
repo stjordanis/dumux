@@ -69,6 +69,8 @@ for i in range(NUM_TEMP_SAMPLES):
             # remove the phase transition
             density_red = np.concatenate((values["Density_kgm3"][:i], values["Density_kgm3"][i+2:]))
             enthalpy_red = np.concatenate((values["Enthalpy_kJkg"][:i], values["Enthalpy_kJkg"][i+2:]))
+            # transform unit (kJ/kg -> J/kg)
+            enthalpy_red *= 1000
             # formate the data
             density_vals += formate_values(density_red)
             enthalpy_vals += formate_values(enthalpy_red)
