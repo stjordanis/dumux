@@ -13,8 +13,13 @@ The values are calculated using the equation of Span and Wagner. Therefore,
 the maximum pressure limit is the lowest of the following values:
 * 800.0000 MPa
 * The pressure at which a density of 1178.5 kg/m3 is reached.
+
+The IIR Convention is used to define the reference state for the enthalpy.
+Therefore the enthalpy is set to 200000 J/kg at 0°C for saturated liquid.
+NIST can provides also data according to other reference states (NBP and ASHRAE)
 """
 
+import argparse
 import urllib
 import requests
 import numpy as np
@@ -22,24 +27,37 @@ from io import StringIO
 from string import Template
 
 
-MIN_TEMP = 290  # K
-MAX_TEMP = 340  # K
-NUM_TEMP_SAMPLES = 50 # MIN_TEMP ist the first sample point, MAX_TEMP the last.
-MIN_PRESS = 1.0e+05  # Pa
-MAX_PRESS = 1.0e+08  # Pa
-NUM_PRESS_SAMPLES = 495 # MIN_PRESS ist the first sample point, MAX_PRESS the last.
+parser = argparse.ArgumentParser(
+    description='This script generates tables for CO2 fluid properties \n'
+                '(density and enthalpy) using the equation of Span and Wagner.\n'
+)
+parser.add_argument('-t1', '--min_temp', required=True, type=float,
+                    help='The minimum temperature in Kelvin.')
+parser.add_argument('-t2', '--max_temp', required=True, type=float,
+                    help='The maximum temperature in Kelvin.')
+parser.add_argument('-nt', '--n_temp', required=True, type=int,
+                    help='The number of temperature sampling points.'
+                         'min_temp ist the first sampling point, max_temp the last.')
+parser.add_argument('-p1', '--min_press', required=True, type=float,
+                    help='The minimum pressure in Pascal.')
+parser.add_argument('-p2', '--max_press', required=True, type=float,
+                    help='The maximum pressure in Pascal.')
+parser.add_argument('-np', '--n_press', required=True, type=int,
+                    help='The number of pressure sampling points.'
+                         'min_press ist the first sampling point, max_press the last.')
+cmdArgs = vars(parser.parse_args())
 
-delta_temperature = (MAX_TEMP - MIN_TEMP) / (NUM_TEMP_SAMPLES - 1)
-delta_pressure = (MAX_PRESS - MIN_PRESS) / (NUM_PRESS_SAMPLES - 1)
+delta_temperature = (cmdArgs["max_temp"] - cmdArgs["min_temp"]) / (cmdArgs["n_temp"] - 1)
+delta_pressure = (cmdArgs["max_press"] - cmdArgs["min_press"]) / (cmdArgs["n_press"] - 1)
 
 density_str = []
 enthalpy_str = []
 
 # get the data
-for i in range(NUM_TEMP_SAMPLES):
-    temperature = MIN_TEMP + i * delta_temperature
+for i in range(cmdArgs["n_temp"]):
+    temperature = cmdArgs["min_temp"] + i * delta_temperature
     query = {'Action': 'Data', 'Wide': 'on', 'ID': 'C124389', 'Type': 'IsoTherm',
-             'Digits': '12', 'PLow': str(MIN_PRESS), 'PHigh': str(MAX_PRESS),
+             'Digits': '12', 'PLow': str(cmdArgs["min_press"]), 'PHigh': str(cmdArgs["max_press"]),
              'PInc': str(delta_pressure), 'T': str(temperature), 'RefState': 'DEF',
              'TUnit': 'K', 'PUnit': 'Pa', 'DUnit': 'kg/m3', 'HUnit': 'kJ/kg',
              'WUnit': 'm/s', 'VisUnit': 'uPas', 'STUnit': 'N/m'}
@@ -72,12 +90,12 @@ enthalpy_str = ',\n'.join(enthalpy_str)
 
 # write the table by filling the gaps in the template
 template = Template(open("co2values_template.inc", 'r').read())
-replacements = {"MIN_TEMP": format(MIN_TEMP),
-                "MAX_TEMP": format(MAX_TEMP),
-                "NUM_TEMP_SAMPLES": format(NUM_TEMP_SAMPLES),
-                "MIN_PRESS": format(MIN_PRESS),
-                "MAX_PRESS": format(MAX_PRESS),
-                "NUM_PRESS_SAMPLES": format(NUM_PRESS_SAMPLES),
+replacements = {"MIN_TEMP": format(cmdArgs["min_temp"]),
+                "MAX_TEMP": format(cmdArgs["max_temp"]),
+                "NUM_TEMP_SAMPLES": format(cmdArgs["n_temp"]),
+                "MIN_PRESS": format(cmdArgs["min_press"]),
+                "MAX_PRESS": format(cmdArgs["max_press"]),
+                "NUM_PRESS_SAMPLES": format(cmdArgs["n_press"]),
                 "DENSITY_VALS": density_str,
                 "ENTHALPY_VALS": enthalpy_str}
 

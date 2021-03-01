@@ -7,13 +7,7 @@
  *
  * Generated using:
  *
- * python make_co2_table.py  using:
- * MIN_TEMP = $MIN_TEMP;
- * MAX_TEMP = $MAX_TEMP;
- * NUM_TEMP_SAMPLES = $NUM_TEMP_SAMPLES;
- * MIN_PRESS = $MIN_PRESS;
- * MAX_PRESS = $MAX_PRESS;
- * NUM_PRESS_SAMPLES = $NUM_PRESS_SAMPLES;
+ * python make_co2_table.py -t1 $MIN_TEMP -t2 $MAX_TEMP -nt $NUM_TEMP_SAMPLES -p1 $MIN_PRESS -p2 $MAX_PRESS -np $NUM_PRESS_SAMPLES
  */
 
 
