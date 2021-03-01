@@ -9,7 +9,11 @@ and Techlology) Standard Reference Database Number 69
 Copyright for NIST Standard Reference Data is governed by the Standard
 Reference Data Act (https://www.nist.gov/srd/public-law).
 
-The values are calculated using the equation of Span and Wagner """
+The values are calculated using the equation of Span and Wagner. Therefore,
+the maximum pressure limit is the lowest of the following values:
+* 800.0000 MPa
+* The pressure at which a density of 1178.5 kg/m3 is reached.
+"""
 
 import urllib
 import requests
