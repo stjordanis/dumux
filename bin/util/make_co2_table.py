@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """ Generate tables for CO2 fluid properties.
 
 The tables are generated using the NIST (National Institute of Standards
@@ -65,8 +67,7 @@ density_str = ',\n'.join(density_str)
 enthalpy_str = ',\n'.join(enthalpy_str)
 
 # write the table by filling the gaps in the template
-f = open("co2values_template.inc", 'r')
-template = Template(f.read())
+template = Template(open("co2values_template.inc", 'r').read())
 replacements = {"MIN_TEMP": format(MIN_TEMP),
                 "MAX_TEMP": format(MAX_TEMP),
                 "NUM_TEMP_SAMPLES": format(NUM_TEMP_SAMPLES),
@@ -75,8 +76,6 @@ replacements = {"MIN_TEMP": format(MIN_TEMP),
                 "NUM_PRESS_SAMPLES": format(NUM_PRESS_SAMPLES),
                 "DENSITY_VALS": density_str,
                 "ENTHALPY_VALS": enthalpy_str}
-text_output = template.substitute(replacements)
 
-f = open("co2values.inc", 'w')
-f.write(text_output)
-f.close()
+with open("co2values.inc", 'w') as tables:
+    tables.write(template.substitute(replacements))
