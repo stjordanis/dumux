@@ -23,23 +23,11 @@ MIN_PRESS = 1.0e+05  # Pa
 MAX_PRESS = 1.0e+08  # Pa
 NUM_PRESS_SAMPLES = 495 # MIN_PRESS ist the first sample point, MAX_PRESS the last.
 
-# TODO: improve remove this function
-def formate_values(values):
-    text = '    {\n       '
-    for i, value in enumerate(values):
-        if i == len(values)-1:
-            text += '     ' + format(value, '.12e') + '\n    },\n'
-            return text
-        text += '     ' + format(value, '.12e') + ','
-        if (i + 1) % 5 == 0:
-            text += ' \n       '
-
-
 delta_temperature = (MAX_TEMP - MIN_TEMP) / (NUM_TEMP_SAMPLES - 1)
 delta_pressure = (MAX_PRESS - MIN_PRESS) / (NUM_PRESS_SAMPLES - 1)
 
-density_vals = ''
-enthalpy_vals = ''
+density_str = []
+enthalpy_str = []
 
 # get the data
 for i in range(NUM_TEMP_SAMPLES):
@@ -67,18 +55,17 @@ for i in range(NUM_TEMP_SAMPLES):
     for i in range(1, len(phase)-1):
         if phase[i] != phase[i+1]:
             # remove the phase transition
-            density_red = np.concatenate((values["Density_kgm3"][:i], values["Density_kgm3"][i+2:]))
-            enthalpy_red = np.concatenate((values["Enthalpy_kJkg"][:i], values["Enthalpy_kJkg"][i+2:]))
+            density = np.concatenate((values["Density_kgm3"][:i], values["Density_kgm3"][i+2:]))
+            enthalpy = np.concatenate((values["Enthalpy_kJkg"][:i], values["Enthalpy_kJkg"][i+2:]))
             # transform unit (kJ/kg -> J/kg)
-            enthalpy_red *= 1000
+            enthalpy *= 1000
             # formate the data
-            density_vals += formate_values(density_red)
-            enthalpy_vals += formate_values(enthalpy_red)
+            density_str.append('    {'+', '.join([format(x, '.12e') for x in density])+'}')
+            enthalpy_str.append('    {'+', '.join([format(x, '.12e') for x in enthalpy])+'}')
             break
 
-# TODO get rid of the next two lines, by improving/removing formate_values()
-density_vals = density_vals[:-2]
-enthalpy_vals = enthalpy_vals[:-2]
+density_str = ',\n'.join(density_str)
+enthalpy_str = ',\n'.join(enthalpy_str)
 
 # write the table by filling the gaps in the template
 f = open("co2values_template.inc", 'r')
@@ -89,8 +76,8 @@ replacements = {"MIN_TEMP": format(MIN_TEMP),
                 "MIN_PRESS": format(MIN_PRESS),
                 "MAX_PRESS": format(MAX_PRESS),
                 "NUM_PRESS_SAMPLES": format(NUM_PRESS_SAMPLES),
-                "DENSITY_VALS": density_vals,
-                "ENTHALPY_VALS": enthalpy_vals}
+                "DENSITY_VALS": density_str,
+                "ENTHALPY_VALS": enthalpy_str}
 text_output = template.substitute(replacements)
 
 f = open("co2values.inc", 'w')
