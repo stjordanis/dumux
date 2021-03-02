@@ -14,9 +14,11 @@ the maximum pressure limit is the lowest of the following values:
 * 800.0000 MPa
 * The pressure at which a density of 1178.5 kg/m3 is reached.
 
-The IIR Convention is used to define the reference state for the enthalpy.
+NIST uses the IIR Convention to define the reference state for the enthalpy.
 Therefore the enthalpy is set to 200000 J/kg at 0°C for saturated liquid.
-NIST can provides also data according to other reference states (NBP and ASHRAE)
+Since this is not the reference state used in dumux, a modification of the
+enthalpy values is necessary. NIST can provides also data according to other
+reference states (NBP and ASHRAE).
 """
 
 import argparse
