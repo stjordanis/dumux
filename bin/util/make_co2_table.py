@@ -82,6 +82,8 @@ for i in range(cmdArgs["n_temp"]):
     enthalpy = np.delete(values["Enthalpy_kJkg"], phase_boundary_indices)
     # transform unit (kJ/kg -> J/kg)
     enthalpy *= 1000
+    # transform to the reference state used in dumux
+    enthalpy -= 484870
     # format the data
     density_str.append('    {'+', '.join([format(x, '.12e') for x in density])+'}')
     enthalpy_str.append('    {'+', '.join([format(x, '.12e') for x in enthalpy])+'}')
