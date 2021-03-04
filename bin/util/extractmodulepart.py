@@ -38,9 +38,8 @@ args = vars(parser.parse_args())
 # function to search the header file efficiently with parallel programming
 def search_headers(c_file):
     global all_headers
-    f = open(c_file,'r')
-    content = f.read()
-    f.close()
+    with open(c_file, 'r') as f:
+        content = f.read()
     header_in_bracket = re.findall(r'(?<=#include <).+?(?=>)',content)
     header_in_quotation = re.findall(r'(?<=#include ").+?(?=")',content)
     for header in header_in_bracket:
@@ -285,45 +284,12 @@ for source in all_sources_with_path:
     source_path = source_dir.replace(module_dir,module_name,1)
     copy_tree(source_dir, source_path)
 
-# delete all architecture-dependent files and unneeded directories
-rmfilenames = ["Makefile.in", "Makefile", '*.o', '*.deps/*']
-for rmfile in rmfilenames:
-    for filename in glob.glob(rmfile):
-        os.remove(filename)
+# delete unnecessary directories to keep the extracted module clean
 shutil.rmtree('dune')
 shutil.rmtree('src')
 
 # set CMakeLists.txt for each directory
 generate_cmake_lists_txt_file(module_path)
-
-# add includes to the automatically generated file *Macros.cmake
-os.chdir("..") # back to the script folder
-macro_file = find('*Macros.cmake', module_name)
-macros_camke = open(macro_file[0], "a")
-cmake_files = find_all("CMakeLists.txt", module_name)
-module_dir = os.path.join(module_name,"cmake/modules")
-for cmake_file in cmake_files:
-    with open(cmake_file) as cmakefile:
-        if 'add_csv_file_links' in cmakefile.read():
-            shutil.copy("dumux-devel/cmake/modules/AddCSVFileLinks.cmake", module_dir)
-            macros_camke.write("\ninclude(AddCSVFileLinks)")
-        if 'add_executable_all' in cmakefile.read():
-            shutil.copy("dumux-devel/cmake/modules/AddExecutableAll.cmake", module_dir)
-            macros_camke.write("\ninclude(AddExecutableAll)")
-        if 'add_file_link' in cmakefile.read():
-            shutil.copy("dumux-devel/cmake/modules/AddFileLink.cmake", module_dir)
-            macros_camke.write("\ninclude(AddFileLink)")
-        if 'add_folder_link' in cmakefile.read():
-            shutil.copy("dumux-devel/cmake/modules/AddFolderLink.cmake", module_dir)
-            macros_camke.write("\ninclude(AddFolderLink)")
-        if 'add_gnuplot_file_links' in cmakefile.read():
-            shutil.copy("dumux-devel/cmake/modules/AddGnuplotFileLinks.cmake", module_dir)
-            macros_camke.write("\ninclude(AddGnuplotFileLinks)")
-macros_camke.close()
-
-# move patches folder into module if existing
-if (os.path.isdir("patches") ):
-    subprocess.call(["mv","patches",module_name],shell=True)
 
 # output guidence for users
 print("\n"+"*"*80+"\n"
