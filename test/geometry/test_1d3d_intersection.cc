@@ -52,135 +52,142 @@ int main (int argc, char *argv[])
     // collect returns to determine exit code
     std::vector<bool> returns;
 
-    using Points = std::vector<Dune::FieldVector<double, dimworld>>;
-    using Geo = Dune::MultiLinearGeometry<double, dim, dimworld>;
+    for (const double scaling : {1.0, 1e3, 1e12, 1e-12})
+    {
+        std::cout << "Test with scaling " << scaling << std::endl;
 
-    // test tetrahedron-line intersections
-    std::cout << "test tetrahedron-line intersections" << std::endl;
+        using Points = std::vector<Dune::FieldVector<double, dimworld>>;
+        using Geo = Dune::MultiLinearGeometry<double, dim, dimworld>;
 
-    auto cornersTetrahedron = Points({{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}});
-    auto tetrahedron = Geo(Dune::GeometryTypes::tetrahedron, cornersTetrahedron);
+        // test tetrahedron-line intersections
+        std::cout << "test tetrahedron-line intersections" << std::endl;
 
-    returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}})));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}})));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 1.0, 0.0}, {0.0, 0.0, 0.0}})));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, 0.0}, {0.0, 0.0, 1.0}})));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}})));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}})));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, 0.5}, {0.5, 0.0, 0.5}})));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, 0.5}, {0.0, 0.5, 0.5}})));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{0.5, 0.0, 0.5}, {0.0, 0.5, 0.5}})));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, 1.0}, {0.5, 0.0, 0.0}})));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, 1.0}, {0.0, 0.5, 0.0}})));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, 1.0}, {0.5, 0.5, 0.0}})));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, 0.0}, {1.0, 1.0, 1.0}})));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{0.25, 0.25, 0.0}, {0.25, 0.25, 1.0}})));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{-1.0, 0.25, 0.5}, {1.0, 0.25, 0.5}})));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{1.0, 1.0, 1.0}, {-1.0, -1.0, -1.0}})));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{1.5, 0.0, 0.5}, {0.0, 1.5, 0.5}}), false));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, 0.0}, {0.0, 0.0, -1.0}}), false));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{1.0, 1.0, 0.0}, {0.0, 0.0, 2.0}}), false));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{1.0, 0.0, 0.1}, {0.0, 1.0, 0.1}}), false));
-    returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, -0.1}, {1.0, 1.0, -0.1}}), false));
+        auto cornersTetrahedron = Points({{0.0, 0.0, 0.0}, {1.0*scaling, 0.0, 0.0}, {0.0, 1.0*scaling, 0.0}, {0.0, 0.0, 1.0*scaling}});
+        auto tetrahedron = Geo(Dune::GeometryTypes::tetrahedron, cornersTetrahedron);
 
-    // test hexahedron-line intersections
-    std::cout << "test hexahedron-line intersections" << std::endl;
+        returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, 0.0}, {1.0*scaling, 0.0, 0.0}})));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{1.0*scaling, 0.0, 0.0}, {0.0, 1.0*scaling, 0.0}})));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 1.0*scaling, 0.0}, {0.0, 0.0, 0.0}})));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, 0.0}, {0.0, 0.0, 1.0*scaling}})));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{1.0*scaling, 0.0, 0.0}, {0.0, 0.0, 1.0*scaling}})));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 1.0*scaling, 0.0}, {0.0, 0.0, 1.0*scaling}})));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, 0.5*scaling}, {0.5*scaling, 0.0, 0.5*scaling}})));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, 0.5*scaling}, {0.0, 0.5*scaling, 0.5*scaling}})));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{0.5*scaling, 0.0, 0.5*scaling}, {0.0, 0.5*scaling, 0.5*scaling}})));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, 1.0*scaling}, {0.5*scaling, 0.0, 0.0}})));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, 1.0*scaling}, {0.0, 0.5*scaling, 0.0}})));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, 1.0*scaling}, {0.5*scaling, 0.5*scaling, 0.0}})));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, 0.0}, {1.0*scaling, 1.0*scaling, 1.0*scaling}})));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{0.25*scaling, 0.25*scaling, 0.0}, {0.25*scaling, 0.25*scaling, 1.0*scaling}})));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{-1.0*scaling, 0.25*scaling, 0.5*scaling}, {1.0*scaling, 0.25*scaling, 0.5*scaling}})));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{1.0*scaling, 1.0*scaling, 1.0*scaling}, {-1.0*scaling, -1.0*scaling, -1.0*scaling}})));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{1.5*scaling, 0.0, 0.5*scaling}, {0.0, 1.5*scaling, 0.5*scaling}}), false));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, 0.0}, {0.0, 0.0, -1.0*scaling}}), false));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{1.0*scaling, 1.0*scaling, 0.0}, {0.0, 0.0, 2.0*scaling}}), false));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{1.0*scaling, 0.0, 0.1*scaling}, {0.0, 1.0*scaling, 0.1*scaling}}), false));
+        returns.push_back(testIntersection(tetrahedron, makeLine({{0.0, 0.0, -0.1*scaling}, {1.0*scaling, 1.0*scaling, -0.1*scaling}}), false));
 
-    auto cornersHexahedron = Points({{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {1.0, 1.0, 0.0},
-                                     {0.0, 0.0, 1.0}, {1.0, 0.0, 1.0}, {0.0, 1.0, 1.0}, {1.0, 1.0, 1.0}});
-    auto hexahedron = Geo(Dune::GeometryTypes::hexahedron, cornersHexahedron);
+        // test hexahedron-line intersections
+        std::cout << "test hexahedron-line intersections" << std::endl;
 
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.0, 0.0}, {0.0, 1.0, 0.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.0, 0.0}, {0.0, 0.0, 1.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{1.0, 0.0, 0.0}, {0.0, 0.0, 0.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{1.0, 0.0, 0.0}, {1.0, 0.0, 1.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{1.0, 0.0, 0.0}, {1.0, 1.0, 0.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 1.0, 0.0}, {0.0, 0.0, 0.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 1.0, 0.0}, {0.0, 1.0, 1.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 1.0, 0.0}, {1.0, 1.0, 0.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{1.0, 1.0, 0.0}, {1.0, 1.0, 1.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{1.0, 1.0, 0.0}, {0.0, 1.0, 0.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{1.0, 1.0, 0.0}, {1.0, 0.0, 0.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.0, 1.0}, {1.0, 0.0, 1.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.0, 1.0}, {0.0, 1.0, 1.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.0, 1.0}, {0.0, 0.0, 0.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{1.0, 0.0, 1.0}, {0.0, 0.0, 1.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{1.0, 0.0, 1.0}, {1.0, 0.0, 0.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{1.0, 0.0, 1.0}, {1.0, 1.0, 1.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 1.0, 1.0}, {0.0, 0.0, 1.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 1.0, 1.0}, {0.0, 1.0, 0.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 1.0, 1.0}, {1.0, 1.0, 1.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{1.0, 1.0, 1.0}, {1.0, 1.0, 0.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{1.0, 1.0, 1.0}, {0.0, 1.0, 1.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{1.0, 1.0, 1.0}, {1.0, 0.0, 1.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.0, 0.0}, {1.0, 1.0, 1.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.5, 0.5, 0.5}, {0.5, 0.5, -2.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.5, 0.0, 0.5}, {0.5, 1.0, 0.5}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.5, 0.5}, {1.0, 0.5, 0.5}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.5, 0.5, 0.0}, {0.5, 0.5, 1.0}})));
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.0, 2.0}, {1.0, 1.0, 2.0}}), false));
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.0, 1.1}, {1.0, 1.0, 1.1}}), false));
-    returns.push_back(testIntersection(hexahedron, makeLine({{1.1, 1.1, 0.0}, {1.1, 1.1, 1.0}}), false));
-    returns.push_back(testIntersection(hexahedron, makeLine({{1.1, 0.0, 0.0}, {1.1, 1.0, 1.0}}), false));
-    returns.push_back(testIntersection(hexahedron, makeLine({{0.0, -0.1, 0.0}, {1.0, -0.1, 0.0}}), false));
+        auto cornersHexahedron = Points({{0.0, 0.0, 0.0}, {1.0*scaling, 0.0, 0.0}, {0.0, 1.0*scaling, 0.0}, {1.0*scaling, 1.0*scaling, 0.0},
+                                         {0.0, 0.0, 1.0*scaling}, {1.0*scaling, 0.0, 1.0*scaling}, {0.0, 1.0*scaling, 1.0*scaling}, {1.0*scaling, 1.0*scaling, 1.0*scaling}});
+        auto hexahedron = Geo(Dune::GeometryTypes::hexahedron, cornersHexahedron);
 
-    // test pyramid-line intersections
-    std::cout << "test pyramid-line intersections" << std::endl;
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.0, 0.0}, {1.0*scaling, 0.0, 0.0}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.0, 0.0}, {0.0, 1.0*scaling, 0.0}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.0, 0.0}, {0.0, 0.0, 1.0*scaling}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{1.0*scaling, 0.0, 0.0}, {0.0, 0.0, 0.0}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{1.0*scaling, 0.0, 0.0}, {1.0*scaling, 0.0, 1.0*scaling}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{1.0*scaling, 0.0, 0.0}, {1.0*scaling, 1.0*scaling, 0.0}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 1.0*scaling, 0.0}, {0.0, 0.0, 0.0}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 1.0*scaling, 0.0}, {0.0, 1.0*scaling, 1.0*scaling}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 1.0*scaling, 0.0}, {1.0*scaling, 1.0*scaling, 0.0}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{1.0*scaling, 1.0*scaling, 0.0}, {1.0*scaling, 1.0*scaling, 1.0*scaling}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{1.0*scaling, 1.0*scaling, 0.0}, {0.0, 1.0*scaling, 0.0}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{1.0*scaling, 1.0*scaling, 0.0}, {1.0*scaling, 0.0, 0.0}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.0, 1.0*scaling}, {1.0*scaling, 0.0, 1.0*scaling}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.0, 1.0*scaling}, {0.0, 1.0*scaling, 1.0*scaling}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.0, 1.0*scaling}, {0.0, 0.0, 0.0}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{1.0*scaling, 0.0, 1.0*scaling}, {0.0, 0.0, 1.0*scaling}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{1.0*scaling, 0.0, 1.0*scaling}, {1.0*scaling, 0.0, 0.0}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{1.0*scaling, 0.0, 1.0*scaling}, {1.0*scaling, 1.0*scaling, 1.0*scaling}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 1.0*scaling, 1.0*scaling}, {0.0, 0.0, 1.0*scaling}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 1.0*scaling, 1.0*scaling}, {0.0, 1.0*scaling, 0.0}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 1.0*scaling, 1.0*scaling}, {1.0*scaling, 1.0*scaling, 1.0*scaling}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{1.0*scaling, 1.0*scaling, 1.0*scaling}, {1.0*scaling, 1.0*scaling, 0.0}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{1.0*scaling, 1.0*scaling, 1.0*scaling}, {0.0, 1.0*scaling, 1.0*scaling}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{1.0*scaling, 1.0*scaling, 1.0*scaling}, {1.0*scaling, 0.0, 1.0*scaling}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.0, 0.0}, {1.0*scaling, 1.0*scaling, 1.0*scaling}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.5*scaling, 0.5*scaling, 0.5*scaling}, {0.5*scaling, 0.5*scaling, -2.0*scaling}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.5*scaling, 0.0, 0.5*scaling}, {0.5*scaling, 1.0*scaling, 0.5*scaling}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.5*scaling, 0.5*scaling}, {1.0*scaling, 0.5*scaling, 0.5*scaling}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.5*scaling, 0.5*scaling, 0.0}, {0.5*scaling, 0.5*scaling, 1.0*scaling}})));
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.0, 2.0*scaling}, {1.0*scaling, 1.0*scaling, 2.0*scaling}}), false));
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.0, 0.0, 1.1*scaling}, {1.0*scaling, 1.0*scaling, 1.1*scaling}}), false));
+        returns.push_back(testIntersection(hexahedron, makeLine({{1.1*scaling, 1.1*scaling, 0.0}, {1.1*scaling, 1.1*scaling, 1.0*scaling}}), false));
+        returns.push_back(testIntersection(hexahedron, makeLine({{1.1*scaling, 0.0, 0.0}, {1.1*scaling, 1.0*scaling, 1.0*scaling}}), false));
+        returns.push_back(testIntersection(hexahedron, makeLine({{0.0, -0.1*scaling, 0.0}, {1.0*scaling, -0.1*scaling, 0.0*scaling}}), false));
 
-    auto cornersPyramid = Points({{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {1.0, 1.0, 0.0}, {0.5, 0.5, 1.0}});
-    auto pyramid = Geo(Dune::GeometryTypes::pyramid, cornersPyramid);
+        // test pyramid-line intersections
+        std::cout << "test pyramid-line intersections" << std::endl;
 
-    returns.push_back(testIntersection(pyramid, makeLine({{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}})));
-    returns.push_back(testIntersection(pyramid, makeLine({{1.0, 0.0, 0.0}, {1.0, 1.0, 0.0}})));
-    returns.push_back(testIntersection(pyramid, makeLine({{1.0, 1.0, 0.0}, {0.0, 1.0, 0.0}})));
-    returns.push_back(testIntersection(pyramid, makeLine({{0.0, 1.0, 0.0}, {0.0, 0.0, 0.0}})));
-    returns.push_back(testIntersection(pyramid, makeLine({{0.5, 0.5, 1.0}, {0.0, 0.0, 0.0}})));
-    returns.push_back(testIntersection(pyramid, makeLine({{0.5, 0.5, 1.0}, {1.0, 0.0, 0.0}})));
-    returns.push_back(testIntersection(pyramid, makeLine({{0.5, 0.5, 1.0}, {0.0, 1.0, 0.0}})));
-    returns.push_back(testIntersection(pyramid, makeLine({{0.5, 0.5, 1.0}, {1.0, 1.0, 0.0}})));
-    returns.push_back(testIntersection(pyramid, makeLine({{0.5, 0.5, 1.0}, {0.5, 0.5, 0.0}})));
-    returns.push_back(testIntersection(pyramid, makeLine({{0.25, 0.25, 0.5}, {0.75, 0.25, 0.5}})));
-    returns.push_back(testIntersection(pyramid, makeLine({{0.75, 0.25, 0.5}, {0.75, 0.75, 0.5}})));
-    returns.push_back(testIntersection(pyramid, makeLine({{0.75, 0.75, 0.5}, {0.25, 0.75, 0.5}})));
-    returns.push_back(testIntersection(pyramid, makeLine({{0.25, 0.75, 0.5}, {0.25, 0.25, 0.5}})));
-    returns.push_back(testIntersection(pyramid, makeLine({{0.0, 0.0, 1.0}, {1.0, 0.0, 1.0}}), false));
-    returns.push_back(testIntersection(pyramid, makeLine({{0.0, 0.0, 1.0}, {0.0, 1.0, 1.0}}), false));
-    returns.push_back(testIntersection(pyramid, makeLine({{0.0, 0.0, -0.1}, {1.0, 1.0, -0.1}}), false));
-    returns.push_back(testIntersection(pyramid, makeLine({{0.0, 1.1, 0.0}, {1.0, 1.1, 0.0}}), false));
-    returns.push_back(testIntersection(pyramid, makeLine({{0.4, 0.0, 1.0}, {0.4, 1.0, 1.0}}), false));
+        auto cornersPyramid = Points({{0.0, 0.0, 0.0}, {1.0*scaling, 0.0, 0.0}, {0.0, 1.0*scaling, 0.0}, {1.0*scaling, 1.0*scaling, 0.0}, {0.5*scaling, 0.5*scaling, 1.0*scaling}});
+        auto pyramid = Geo(Dune::GeometryTypes::pyramid, cornersPyramid);
 
-    // test prism-line intersections
-    std::cout << "test prism-line intersections" << std::endl;
+        returns.push_back(testIntersection(pyramid, makeLine({{0.0, 0.0, 0.0}, {1.0*scaling, 0.0, 0.0}})));
+        returns.push_back(testIntersection(pyramid, makeLine({{1.0*scaling, 0.0, 0.0}, {1.0*scaling, 1.0*scaling, 0.0}})));
+        returns.push_back(testIntersection(pyramid, makeLine({{1.0*scaling, 1.0*scaling, 0.0}, {0.0, 1.0*scaling, 0.0}})));
+        returns.push_back(testIntersection(pyramid, makeLine({{0.0, 1.0*scaling, 0.0}, {0.0, 0.0, 0.0}})));
+        returns.push_back(testIntersection(pyramid, makeLine({{0.5*scaling, 0.5*scaling, 1.0*scaling}, {0.0, 0.0, 0.0}})));
+        returns.push_back(testIntersection(pyramid, makeLine({{0.5*scaling, 0.5*scaling, 1.0*scaling}, {1.0*scaling, 0.0, 0.0}})));
+        returns.push_back(testIntersection(pyramid, makeLine({{0.5*scaling, 0.5*scaling, 1.0*scaling}, {0.0, 1.0*scaling, 0.0}})));
+        returns.push_back(testIntersection(pyramid, makeLine({{0.5*scaling, 0.5*scaling, 1.0*scaling}, {1.0*scaling, 1.0*scaling, 0.0}})));
+        returns.push_back(testIntersection(pyramid, makeLine({{0.5*scaling, 0.5*scaling, 1.0*scaling}, {0.5*scaling, 0.5*scaling, 0.0}})));
+        returns.push_back(testIntersection(pyramid, makeLine({{0.25*scaling, 0.25*scaling, 0.5*scaling}, {0.75*scaling, 0.25*scaling, 0.5*scaling}})));
+        returns.push_back(testIntersection(pyramid, makeLine({{0.75*scaling, 0.25*scaling, 0.5*scaling}, {0.75*scaling, 0.75*scaling, 0.5*scaling}})));
+        returns.push_back(testIntersection(pyramid, makeLine({{0.75*scaling, 0.75*scaling, 0.5*scaling}, {0.25*scaling, 0.75*scaling, 0.5*scaling}})));
+        returns.push_back(testIntersection(pyramid, makeLine({{0.25*scaling, 0.75*scaling, 0.5*scaling}, {0.25*scaling, 0.25*scaling, 0.5*scaling}})));
+        returns.push_back(testIntersection(pyramid, makeLine({{0.0, 0.0, 1.0*scaling}, {1.0*scaling, 0.0, 1.0*scaling}}), false));
+        returns.push_back(testIntersection(pyramid, makeLine({{0.0, 0.0, 1.0*scaling}, {0.0, 1.0*scaling, 1.0*scaling}}), false));
+        returns.push_back(testIntersection(pyramid, makeLine({{0.0, 0.0, -0.1*scaling}, {1.0*scaling, 1.0*scaling, -0.1*scaling}}), false));
+        returns.push_back(testIntersection(pyramid, makeLine({{0.0, 1.1*scaling, 0.0}, {1.0*scaling, 1.1*scaling, 0.0}}), false));
+        returns.push_back(testIntersection(pyramid, makeLine({{0.4*scaling, 0.0, 1.0*scaling}, {0.4*scaling, 1.0*scaling, 1.0*scaling}}), false));
 
-    auto cornersPrism = Points({{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0},
-                                {0.0, 0.0, 1.0}, {1.0, 0.0, 1.0}, {0.0, 1.0, 1.0}});
-    auto prism = Geo(Dune::GeometryTypes::prism, cornersPrism);
+        // test prism-line intersections
+        std::cout << "test prism-line intersections" << std::endl;
 
-    returns.push_back(testIntersection(prism, makeLine({{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}})));
-    returns.push_back(testIntersection(prism, makeLine({{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}})));
-    returns.push_back(testIntersection(prism, makeLine({{0.0, 1.0, 0.0}, {0.0, 0.0, 0.0}})));
-    returns.push_back(testIntersection(prism, makeLine({{0.0, 0.0, 1.0}, {1.0, 0.0, 1.0}})));
-    returns.push_back(testIntersection(prism, makeLine({{1.0, 0.0, 1.0}, {0.0, 1.0, 1.0}})));
-    returns.push_back(testIntersection(prism, makeLine({{0.0, 1.0, 1.0}, {0.0, 0.0, 1.0}})));
-    returns.push_back(testIntersection(prism, makeLine({{0.0, 0.0, 0.0}, {0.0, 0.0, 1.0}})));
-    returns.push_back(testIntersection(prism, makeLine({{1.0, 0.0, 0.0}, {1.0, 0.0, 1.0}})));
-    returns.push_back(testIntersection(prism, makeLine({{0.0, 1.0, 0.0}, {0.0, 1.0, 1.0}})));
-    returns.push_back(testIntersection(prism, makeLine({{0.25, 0.25, 0.0}, {0.25, 0.25, 1.0}})));
-    returns.push_back(testIntersection(prism, makeLine({{0.0, 0.0, 0.5}, {1.0, 0.0, 0.5}})));
-    returns.push_back(testIntersection(prism, makeLine({{1.0, 0.0, 0.5}, {0.0, 1.0, 0.5}})));
-    returns.push_back(testIntersection(prism, makeLine({{0.0, 1.0, 0.5}, {0.0, 0.0, 0.5}})));
-    returns.push_back(testIntersection(prism, makeLine({{1.0, 1.0, 0.0}, {1.0, 1.0, 1.0}}), false));
-    returns.push_back(testIntersection(prism, makeLine({{2.0, 0.0, 0.5}, {0.0, 2.0, 0.5}}), false));
-    returns.push_back(testIntersection(prism, makeLine({{1.1, 0.0, 0.0}, {1.1, 0.0, 1.0}}), false));
-    returns.push_back(testIntersection(prism, makeLine({{-0.1, 0.0, 1.0}, {-0.1, 1.0, 1.0}}), false));
-    returns.push_back(testIntersection(prism, makeLine({{1.0, 0.0, 1.1}, {0.0, 1.0, 1.1}}), false));
+        auto cornersPrism = Points({{0.0, 0.0, 0.0}, {1.0*scaling, 0.0, 0.0}, {0.0, 1.0*scaling, 0.0},
+                                    {0.0, 0.0, 1.0*scaling}, {1.0*scaling, 0.0, 1.0*scaling}, {0.0, 1.0*scaling, 1.0*scaling}});
+        auto prism = Geo(Dune::GeometryTypes::prism, cornersPrism);
+
+        returns.push_back(testIntersection(prism, makeLine({{0.0, 0.0, 0.0}, {1.0*scaling, 0.0, 0.0}})));
+        returns.push_back(testIntersection(prism, makeLine({{1.0*scaling, 0.0, 0.0}, {0.0, 1.0*scaling, 0.0}})));
+        returns.push_back(testIntersection(prism, makeLine({{0.0, 1.0*scaling, 0.0}, {0.0, 0.0, 0.0}})));
+        returns.push_back(testIntersection(prism, makeLine({{0.0, 0.0, 1.0*scaling}, {1.0*scaling, 0.0, 1.0*scaling}})));
+        returns.push_back(testIntersection(prism, makeLine({{1.0*scaling, 0.0, 1.0*scaling}, {0.0, 1.0*scaling, 1.0*scaling}})));
+        returns.push_back(testIntersection(prism, makeLine({{0.0, 1.0*scaling, 1.0*scaling}, {0.0, 0.0, 1.0*scaling}})));
+        returns.push_back(testIntersection(prism, makeLine({{0.0, 0.0, 0.0}, {0.0, 0.0, 1.0*scaling}})));
+        returns.push_back(testIntersection(prism, makeLine({{1.0*scaling, 0.0, 0.0}, {1.0*scaling, 0.0, 1.0*scaling}})));
+        returns.push_back(testIntersection(prism, makeLine({{0.0, 1.0*scaling, 0.0}, {0.0, 1.0*scaling, 1.0*scaling}})));
+        returns.push_back(testIntersection(prism, makeLine({{0.25*scaling, 0.25*scaling, 0.0}, {0.25*scaling, 0.25*scaling, 1.0*scaling}})));
+        returns.push_back(testIntersection(prism, makeLine({{0.0, 0.0, 0.5*scaling}, {1.0*scaling, 0.0, 0.5*scaling}})));
+        returns.push_back(testIntersection(prism, makeLine({{1.0*scaling, 0.0, 0.5*scaling}, {0.0, 1.0*scaling, 0.5*scaling}})));
+        returns.push_back(testIntersection(prism, makeLine({{0.0, 1.0*scaling, 0.5*scaling}, {0.0, 0.0, 0.5*scaling}})));
+        returns.push_back(testIntersection(prism, makeLine({{1.0*scaling, 1.0*scaling, 0.0}, {1.0*scaling, 1.0*scaling, 1.0*scaling}}), false));
+        returns.push_back(testIntersection(prism, makeLine({{2.0*scaling, 0.0, 0.5*scaling}, {0.0, 2.0*scaling, 0.5*scaling}}), false));
+        returns.push_back(testIntersection(prism, makeLine({{1.1*scaling, 0.0, 0.0}, {1.1*scaling, 0.0, 1.0*scaling}}), false));
+        returns.push_back(testIntersection(prism, makeLine({{-0.1*scaling, 0.0, 1.0*scaling}, {-0.1*scaling, 1.0*scaling, 1.0*scaling}}), false));
+        returns.push_back(testIntersection(prism, makeLine({{1.0*scaling, 0.0, 1.1*scaling}, {0.0, 1.0*scaling, 1.1*scaling}}), false));
+    }
 
     // determine the exit code
-    if (std::any_of(returns.begin(), returns.end(), [](bool i){ return !i; }))
+    if (std::any_of(returns.begin(), returns.end(), std::logical_not<bool>{}))
         return 1;
 
-    std::cout << "All tests passed!" << std::endl;
+    std::cout << "\n++++++++++++++++++++++\n"
+              << "All tests passed!"
+              << "\n++++++++++++++++++++++" << std::endl;
 
     return 0;
 }
