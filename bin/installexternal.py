@@ -168,7 +168,8 @@ def install_external(args):
 
         # Run the requested command
         if cleanup:
-            if os.path.isfile(package + '.tar.gz'): os.remove(package + '.tar.gz')
+            if os.path.isfile(package + '.tar.gz'):
+                os.remove(package + '.tar.gz')
             if os.path.exists(package):
                 # Remove
                 shutil.rmtree(package)
