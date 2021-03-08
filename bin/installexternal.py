@@ -43,7 +43,7 @@ parser = argparse.ArgumentParser(prog='installexternal',
 parser.register('action', 'store_choice', ChoicesAction)
 # Positional arguments
 group = parser.add_argument_group(title='your choice of packages')
-packages = group.add_argument('packages', nargs='*', metavar='PACKAGES',
+packages = group.add_argument('packages', nargs='+', metavar='PACKAGES',
                  action='store_choice')
 packages.add_choice('all', help='Install everything and the kitchen sink.')
 packages.add_choice('dumux-extensions', help="Download dumux-course and dumux-lecture.")
