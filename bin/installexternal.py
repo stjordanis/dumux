@@ -20,7 +20,6 @@ class ChoicesAction(argparse._StoreAction):
         self._choices_actions = []
     def add_choice(self, choice, help=''):
         self.choices.append(choice)
-        # self.container.add_argument(choice, help=help, action='none')
         choice_action = argparse.Action(option_strings=[], dest=choice, help=help)
         self._choices_actions.append(choice_action)
     def _get_subactions(self):
