@@ -20,6 +20,13 @@ if len(sys.argv) == 1:
     sys.exit()
 
 # check if help is needed
+epilog = '''
+-----------------------------------------------------------
+The script has to be called one level above module_dir.
+At least one of the subfolders (FOLDER_1 [FOLDER_2 ...]) has
+to contain a source file *.cc of an executable for which
+you would like to timber a table in dumux-pub.)
+'''
 parser = argparse.ArgumentParser(prog='extractmodulepart',
                                  usage= "./extractmodulepart module_dir SUBFOLDER_1 [SUBFOLDER_2 ...]",
                                  description='This script extracts a subfolder of a DUNE module',
